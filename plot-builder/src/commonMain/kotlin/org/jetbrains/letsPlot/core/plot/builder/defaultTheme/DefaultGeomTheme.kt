@@ -61,6 +61,7 @@ internal class DefaultGeomTheme private constructor(
             // Size: point size or line width - depending on the geom kind.
             val size = when (geomKind) {
                 GeomKind.POINT,
+                GeomKind.NGON,
                 GeomKind.JITTER,
                 GeomKind.SINA,
                 GeomKind.Q_Q,

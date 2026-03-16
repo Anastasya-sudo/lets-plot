@@ -64,7 +64,7 @@ class GeoConfig(
 
 
     companion object {
-        private val POINT_GEOMS = setOf(POINT, TEXT, LABEL, TEXT_REPEL, LABEL_REPEL, PIE, POINT_DENSITY)
+        private val POINT_GEOMS = setOf(POINT, NGON, TEXT, LABEL, TEXT_REPEL, LABEL_REPEL, PIE, POINT_DENSITY)
         const val GEO_ID = "__geo_id__"
         const val POINT_X = "lon"
         const val POINT_Y = "lat"
@@ -271,7 +271,7 @@ class GeoDataFrameProcessor(
 
         val coordinatesCollector = when (geomKind) {
             MAP, POLYGON -> BoundaryCoordinatesCollector(dataFrame, geometries)
-            LIVE_MAP, POINT, TEXT, LABEL, TEXT_REPEL, LABEL_REPEL, POINT_DENSITY, PIE -> PointCoordinatesCollector(dataFrame, geometries)
+            LIVE_MAP, POINT, NGON, TEXT, LABEL, TEXT_REPEL, LABEL_REPEL, POINT_DENSITY, PIE -> PointCoordinatesCollector(dataFrame, geometries)
             RECT -> BboxCoordinatesCollector(dataFrame, geometries)
             PATH -> PathCoordinatesCollector(dataFrame, geometries)
             else -> error("Unsupported geom: $geomKind")

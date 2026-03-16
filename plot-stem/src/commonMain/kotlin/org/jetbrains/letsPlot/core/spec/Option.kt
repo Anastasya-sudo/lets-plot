@@ -412,6 +412,12 @@ object Option {
             const val SIZE_UNIT = "size_unit"
         }
 
+        object Ngon {
+            const val SIDECOUNT = "sidecount"
+            const val ANIMATION = "animation"
+            const val SIZE_UNIT = "size_unit"
+        }
+
         object Image {
             const val HREF = "href"
 
@@ -1121,6 +1127,7 @@ object Option {
         const val Y_DOT_PLOT = "ydotplot"
         const val LIVE_MAP = "livemap"
         const val POINT = "point"
+        const val NGON = "ngon"
         private const val RIBBON = "ribbon"
         private const val AREA = "area"
         private const val DENSITY = "density"
@@ -1182,6 +1189,7 @@ object Option {
             map[SINA] = GeomKind.SINA
             map[LIVE_MAP] = GeomKind.LIVE_MAP
             map[POINT] = GeomKind.POINT
+            map[NGON] = GeomKind.NGON
             map[RIBBON] = GeomKind.RIBBON
             map[AREA] = GeomKind.AREA
             map[DENSITY] = GeomKind.DENSITY

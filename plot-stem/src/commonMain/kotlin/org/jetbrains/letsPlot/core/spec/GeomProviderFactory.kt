@@ -337,6 +337,16 @@ internal object GeomProviderFactory {
                 geom
             }
 
+            GeomKind.NGON -> GeomProvider.ngon {
+                val geom = NgonGeom()
+                if (layerConfig.has(Option.Geom.Ngon.ANIMATION)) {
+                    geom.animation = layerConfig[Option.Geom.Ngon.ANIMATION]
+                }
+                geom.sideCount = layerConfig.getIntegerDef(Option.Geom.Ngon.SIDECOUNT, NgonGeom.DEF_SIDE_COUNT)
+                geom.sizeUnit = layerConfig.getString(Option.Geom.Ngon.SIZE_UNIT)?.lowercase()
+                geom
+            }
+
             GeomKind.TEXT -> GeomProvider.text {
                 val geom = TextGeom()
                 applyTextOptions(layerConfig, geom, expFormat, tz)

@@ -34,6 +34,14 @@ class GeomProvider internal constructor(
             )
         }
 
+        fun ngon(supplier: (Context) -> Geom): GeomProvider {
+            return GeomProvider(
+                GeomKind.NGON,
+                NgonGeom.HANDLES_GROUPS,
+                supplier
+            )
+        }
+
         fun path(supplier: (Context) -> Geom): GeomProvider {
             return GeomProvider(
                 GeomKind.PATH,

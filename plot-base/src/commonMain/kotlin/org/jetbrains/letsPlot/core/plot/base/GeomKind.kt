@@ -32,6 +32,7 @@ enum class GeomKind {
     Y_DOT_PLOT,
     LIVE_MAP,
     POINT,
+    NGON,
     RIBBON,
     AREA,
     DENSITY,

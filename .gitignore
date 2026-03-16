@@ -47,3 +47,6 @@ qemu-aarch64-static
 
 # ImageMagick and its dependencies.
 platf-imagick/deps
+
+.venv-test
+

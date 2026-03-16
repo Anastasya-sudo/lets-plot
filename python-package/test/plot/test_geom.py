@@ -65,3 +65,12 @@ def test_layer_tooltips_none():
 def test_layer_tooltips_geom_blank():
     spec = gg.ggplot() + gg.geom_blank()
     assert spec.as_dict()['layers'][0] == { 'geom': 'blank', 'data_meta': {}, 'mapping': {}, 'inherit_aes': False,  'tooltips': 'none'}
+
+
+def test_geom_ngon_spec_contains_geom_and_sidecount():
+    spec = gg.ggplot() + gg.geom_ngon(gg.aes(x='x', y='y'), data={'x': [1], 'y': [2]}, sidecount=7)
+    layer_spec = spec.as_dict()['layers'][0]
+
+    assert layer_spec['geom'] == 'ngon'
+    assert layer_spec['sidecount'] == 7
+    assert layer_spec['mapping'] == {'x': 'x', 'y': 'y'}

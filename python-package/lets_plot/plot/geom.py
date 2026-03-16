@@ -14,7 +14,7 @@ geopandas = LazyModule('geopandas')
 #
 # Geoms, short for geometric objects, describe the type of plot ggplot will produce.
 #
-__all__ = ['geom_point', 'geom_path', 'geom_line',
+__all__ = ['geom_point', 'geom_ngon', 'geom_path', 'geom_line',
            'geom_smooth', 'geom_bar',
            'geom_histogram', 'geom_dotplot', 'geom_bin2d', 'geom_hex',
            'geom_tile', 'geom_raster',
@@ -231,6 +231,42 @@ def geom_point(mapping=None, *, data=None, stat=None, position=None, show_legend
                  tooltips=tooltips,
                  map=map, map_join=map_join, use_crs=use_crs,
                  size_unit=size_unit,
+                 color_by=color_by, fill_by=fill_by,
+                 **other_args)
+
+
+def geom_ngon(mapping=None, *, data=None, stat=None, position=None, show_legend=None, inherit_aes=None,
+              manual_key=None, sampling=None,
+              tooltips=None,
+              map=None, map_join=None, use_crs=None,
+              sidecount=None, size_unit=None,
+              color_by=None, fill_by=None,
+              **other_args):
+    """
+    Draw regular n-gons centered at x and y coordinates.
+
+    Parameters
+    ----------
+    sidecount : int, default=5
+        Number of polygon sides.
+
+    Returns
+    -------
+    ``LayerSpec``
+        Geom object specification.
+    """
+    return _geom('ngon',
+                 mapping=mapping,
+                 data=data,
+                 stat=stat,
+                 position=position,
+                 show_legend=show_legend,
+                 inherit_aes=inherit_aes,
+                 manual_key=manual_key,
+                 sampling=sampling,
+                 tooltips=tooltips,
+                 map=map, map_join=map_join, use_crs=use_crs,
+                 sidecount=sidecount, size_unit=size_unit,
                  color_by=color_by, fill_by=fill_by,
                  **other_args)
 

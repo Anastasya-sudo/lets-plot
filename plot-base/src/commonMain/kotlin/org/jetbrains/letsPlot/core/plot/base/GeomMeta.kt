@@ -72,6 +72,7 @@ object GeomMeta {
     private fun renderedAesList(geomKind: GeomKind): List<Aes<*>> {
         return when (geomKind) {
             GeomKind.POINT -> POINT
+            GeomKind.NGON -> POINT
 
 
             GeomKind.PATH -> PATH

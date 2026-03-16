@@ -117,7 +117,7 @@ object GeomInteractionUtil {
                 if (geomKind in setOf(GeomKind.LINE, GeomKind.DENSITY, GeomKind.AREA, GeomKind.FREQPOLY, GeomKind.RIBBON)) {
                     multilayerLookup = true
                 } else if (statKind === StatKind.SMOOTH) {
-                    multilayerLookup = geomKind in listOf(GeomKind.POINT, GeomKind.CONTOUR)
+                    multilayerLookup = geomKind in listOf(GeomKind.POINT, GeomKind.NGON, GeomKind.CONTOUR)
                 }
             }
 
@@ -145,6 +145,7 @@ object GeomInteractionUtil {
         if (statKind === StatKind.SMOOTH) {
             when (geomKind) {
                 GeomKind.POINT,
+                GeomKind.NGON,
                 GeomKind.CONTOUR -> return GeomTooltipSetup.xUnivariateFunction(
                     GeomTargetLocator.LookupStrategy.NEAREST
                 )
@@ -196,6 +197,7 @@ object GeomInteractionUtil {
             GeomKind.TEXT_REPEL,
             GeomKind.LABEL_REPEL,
             GeomKind.POINT,
+            GeomKind.NGON,
             GeomKind.JITTER,
             GeomKind.Q_Q,
             GeomKind.Q_Q_2,
@@ -383,6 +385,7 @@ object GeomInteractionUtil {
 
         return when (geomKind) {
             GeomKind.POINT,
+            GeomKind.NGON,
             GeomKind.JITTER,
             GeomKind.SINA,
             GeomKind.Q_Q,

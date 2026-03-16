@@ -67,6 +67,7 @@ class GeomProto(val geomKind: GeomKind) {
     fun preferredSampling(): Sampling {
         return when (geomKind) {
             POINT -> DefaultSampling.POINT
+            NGON -> DefaultSampling.POINT
             PATH -> DefaultSampling.PATH
             LINE -> DefaultSampling.LINE
             SMOOTH -> DefaultSampling.SMOOTH

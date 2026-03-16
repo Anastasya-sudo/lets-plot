@@ -141,6 +141,7 @@ class AestheticsDefaults private constructor(
         fun create(geomKind: GeomKind, geomTheme: GeomTheme): AestheticsDefaults {
             return when (geomKind) {
                 GeomKind.POINT,
+                GeomKind.NGON,
                 GeomKind.JITTER,
                 GeomKind.SINA,
                 GeomKind.Q_Q,
