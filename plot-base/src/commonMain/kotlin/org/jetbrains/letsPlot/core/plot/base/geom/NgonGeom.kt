@@ -17,6 +17,7 @@ import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
 import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 class NgonGeom : GeomBase() {
@@ -56,6 +57,11 @@ class NgonGeom : GeomBase() {
 
             val radius = AesScaling.circleDiameter(p) * scaleFactor / 2.0
             if (!radius.isFinite() || radius <= 0.0) continue
+
+            val sideCount = p[Aes.SIDECOUNT]
+                ?.takeIf { it.isFinite() }
+                ?.roundToInt()
+                ?: this.sideCount
 
             val polygonPoints = polygon(clientCenter, radius, sideCount)
             if (polygonPoints.size < 4) continue

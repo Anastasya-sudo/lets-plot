@@ -42,6 +42,7 @@ import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.POINT_STROKE
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.QUANTILE
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.RADIUS
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SAMPLE
+import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SIDECOUNT
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SEGMENT_ALPHA
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SEGMENT_COLOR
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SEGMENT_SIZE
@@ -136,6 +137,7 @@ object AesInitValue {
         VALUE_MAP[VJUST] = 0.5  // 'middle'
         VALUE_MAP[ANGLE] = 0.0
         VALUE_MAP[RADIUS] = 0.0
+        VALUE_MAP[SIDECOUNT] = 5.0
         VALUE_MAP[SLICE] = 0.0
         VALUE_MAP[EXPLODE] = 0.0
         VALUE_MAP[ISTART] = 0.0

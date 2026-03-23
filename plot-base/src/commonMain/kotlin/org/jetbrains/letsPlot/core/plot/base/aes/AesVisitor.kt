@@ -38,6 +38,7 @@ import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.POINT_STROKE
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.QUANTILE
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.RADIUS
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SAMPLE
+import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SIDECOUNT
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SEGMENT_ALPHA
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SEGMENT_COLOR
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SEGMENT_SIZE
@@ -242,6 +243,9 @@ abstract class AesVisitor<T> {
         if (aes == RADIUS) {
             return radius()
         }
+        if (aes == SIDECOUNT) {
+            return sidecount()
+        }
         if (aes == SLICE) {
             return slice()
         }
@@ -390,6 +394,8 @@ abstract class AesVisitor<T> {
     protected abstract fun angle(): T
 
     protected abstract fun radius(): T
+
+    protected abstract fun sidecount(): T
 
     protected abstract fun slice(): T
 

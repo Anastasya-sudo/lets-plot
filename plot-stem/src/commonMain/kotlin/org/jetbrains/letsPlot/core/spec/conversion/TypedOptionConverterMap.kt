@@ -38,6 +38,7 @@ import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.POINT_STROKE
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.QUANTILE
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.RADIUS
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SAMPLE
+import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SIDECOUNT
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SEGMENT_ALPHA
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SEGMENT_COLOR
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SEGMENT_SIZE
@@ -141,6 +142,7 @@ internal class TypedOptionConverterMap(colorConverter: ColorOptionConverter) {
         )   // text vertical justification (numbers [0..1] or predefined strings, not positional)
         this.put(ANGLE, DOUBLE_CVT)
         this.put(RADIUS, DOUBLE_CVT)
+        this.put(SIDECOUNT, DOUBLE_CVT)
         this.put(SLICE, DOUBLE_CVT)
         this.put(EXPLODE, DOUBLE_CVT)
 
