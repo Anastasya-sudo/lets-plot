@@ -20,7 +20,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class NgonGeom : GeomBase() {
-    var animation: Any? = null
     var sideCount: Int = DEF_SIDE_COUNT
     var sizeUnit: String? = null
 
