@@ -39,6 +39,7 @@ import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.POINT_STROKE
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.QUANTILE
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.RADIUS
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SAMPLE
+import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SIDECOUNT
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SEGMENT_ALPHA
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SEGMENT_COLOR
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.SEGMENT_SIZE
@@ -173,6 +174,7 @@ object DefaultMapperProvider {
             this.put(VJUST, createObjectIdentity())
             this.put(ANGLE, NUMERIC_IDENTITY)
             this.put(RADIUS, NUMERIC_IDENTITY)
+            this.put(SIDECOUNT, NUMERIC_IDENTITY)
 
             this.put(SLICE, NUMERIC_IDENTITY)
             this.put(EXPLODE, NUMERIC_IDENTITY)

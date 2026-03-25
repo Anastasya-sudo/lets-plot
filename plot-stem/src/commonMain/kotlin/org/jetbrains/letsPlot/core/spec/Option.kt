@@ -414,7 +414,6 @@ object Option {
 
         object Ngon {
             const val SIDECOUNT = "sidecount"
-            const val ANIMATION = "animation"
             const val SIZE_UNIT = "size_unit"
         }
 

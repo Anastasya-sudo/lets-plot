@@ -61,6 +61,7 @@ object TransformVar {
     val VJUST = DataFrame.Variable("transform.VJUST", TRANSFORM)
     val ANGLE = DataFrame.Variable("transform.ANGLE", TRANSFORM)
     val RADIUS = DataFrame.Variable("transform.RADIUS", TRANSFORM)
+    val SIDECOUNT = DataFrame.Variable("transform.SIDECOUNT", TRANSFORM)
     val SLICE = DataFrame.Variable("transform.SLICE", TRANSFORM)
     val EXPLODE = DataFrame.Variable("transform.EXPLODE", TRANSFORM)
     val ISTART = DataFrame.Variable("transform.ISTART", TRANSFORM)
@@ -309,6 +310,10 @@ object TransformVar {
 
         override fun radius(): DataFrame.Variable {
             return RADIUS
+        }
+
+        override fun sidecount(): DataFrame.Variable {
+            return SIDECOUNT
         }
 
         override fun slice(): DataFrame.Variable {

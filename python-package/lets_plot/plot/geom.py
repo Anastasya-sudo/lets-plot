@@ -247,13 +247,151 @@ def geom_ngon(mapping=None, *, data=None, stat=None, position=None, show_legend=
 
     Parameters
     ----------
+    mapping : ``FeatureSpec``
+        Set of aesthetic mappings created by `aes() <https://lets-plot.org/python/pages/api/lets_plot.aes.html>`__ function.
+        Aesthetic mappings describe the way that variables in the data are
+        mapped to plot "aesthetics".
+    data : dict or Pandas or Polars ``DataFrame`` or ``GeoDataFrame``
+        The data to be displayed in this layer. If None, the default, the data
+        is inherited from the plot data as specified in the call to ggplot.
+    stat : str, default='identity'
+        The statistical transformation to use on the data for this layer, as a string.
+        Supported transformations: 'identity' (leaves the data unchanged),
+        'count' (counts number of points with the same x-axis coordinate),
+        'bin' (counts number of points with the x-axis coordinate in the same bin),
+        'smooth' (performs smoothing - linear default),
+        'density' (computes and draws kernel density estimate),
+        'sum' (counts the number of points at each location - might help to work around overplotting).
+    position : str or ``FeatureSpec``, default='identity'
+        Position adjustment.
+        Either a position adjustment name: 'dodge', 'jitter', 'nudge', 'jitterdodge', 'fill',
+        'stack' or 'identity', or the result of calling a position adjustment function (e.g., `position_dodge() <https://lets-plot.org/python/pages/api/lets_plot.position_dodge.html>`__ etc.).
+    show_legend : bool, default=True
+        False - do not show legend for this layer.
+    inherit_aes : bool, default=True
+        False - do not combine the layer aesthetic mappings with the plot shared mappings.
+    manual_key : str or ``layer_key``
+        The key to show in the manual legend.
+        Specify text for the legend label or advanced settings using the `layer_key() <https://lets-plot.org/python/pages/api/lets_plot.layer_key.html>`__ function.
+    sampling : ``FeatureSpec``
+        Result of the call to the ``sampling_xxx()`` function.
+        To prevent any sampling for this layer pass value "none" (string "none").
+    tooltips : ``layer_tooltips``
+        Result of the call to the `layer_tooltips() <https://lets-plot.org/python/pages/api/lets_plot.layer_tooltips.html>`__ function.
+        Specify appearance, style and content.
+        Set tooltips='none' to hide tooltips from the layer.
+    map : ``GeoDataFrame`` or ``Geocoder``
+        Data containing coordinates of points.
+    map_join : str or list
+        Keys used to join map coordinates with data.
+        First value in pair - column/columns in ``data``.
+        Second value in pair - column/columns in ``map``.
+    use_crs : str, optional, default="EPSG:4326" (aka WGS84)
+        EPSG code of the coordinate reference system (CRS) or the keyword "provided".
+        If an EPSG code is given, then all the coordinates in ``GeoDataFrame`` (see the ``map`` parameter)
+        will be projected to this CRS.
+        Specify "provided" to disable any further re-projection and to keep the ``GeoDataFrame``'s original CRS.
     sidecount : int, default=5
         Number of polygon sides.
+        Values less than 3 are treated as 3.
+    size_unit : {'x', 'y', 'min', 'max'}
+        Relate the size of the n-gon to the length of the unit step along one of the axes.
+        'x' uses the unit step along the x-axis, 'y' uses the unit step along the y-axis.
+        'min' uses the smaller of the unit steps along the x- and y-axes.
+        'max' uses the larger of the unit steps along the x- and y-axes.
+        If None, no fitting is performed.
+    color_by : {'fill', 'color', 'paint_a', 'paint_b', 'paint_c'}, default='color'
+        Define the color aesthetic for the geometry.
+    fill_by : {'fill', 'color', 'paint_a', 'paint_b', 'paint_c'}, default='fill'
+        Define the fill aesthetic for the geometry.
+    other_args
+        Other arguments passed on to the layer.
+        These are often aesthetics settings used to set an aesthetic to a fixed value,
+        like color='red', fill='blue', size=3 or shape=21.
+        They may also be parameters to the paired geom/stat.
 
     Returns
     -------
     ``LayerSpec``
         Geom object specification.
+
+    Notes
+    -----
+    ``geom_ngon()`` is a point-like geometry that draws regular polygons.
+
+    ``geom_ngon()`` understands the following aesthetics mappings:
+
+    - x : x-axis value.
+    - y : y-axis value.
+    - alpha : transparency level of the n-gon. Accept values between 0 and 1.
+    - color (colour) : color of the geometry. For more info see `Color and Fill <https://lets-plot.org/python/pages/aesthetics.html#color-and-fill>`__.
+    - fill : fill color. For more info see `Color and Fill <https://lets-plot.org/python/pages/aesthetics.html#color-and-fill>`__.
+    - size : size of the n-gon. Default in the default theme is 7.
+    - stroke : width of the n-gon border.
+    - sidecount : number of sides of the n-gon (rounded to integer).
+
+    ----
+
+    The ``data`` and ``map`` parameters of ``GeoDataFrame`` type support shapes ``Point`` and ``MultiPoint``.
+
+    The ``map`` parameter of ``Geocoder`` type implicitly invokes
+    `get_centroids() <https://lets-plot.org/python/pages/api/lets_plot.geo_data.NamesGeocoder.html#lets_plot.geo_data.NamesGeocoder.get_centroids>`__ function.
+
+    ----
+
+    The conventions for the values of ``map_join`` parameter are as follows:
+
+    - Joining data and ``GeoDataFrame`` object
+
+      Data has a column named 'State_name' and ``GeoDataFrame`` has a matching column named 'state':
+
+      - map_join=['State_Name', 'state']
+      - map_join=[['State_Name'], ['state']]
+
+    - Joining data and ``Geocoder`` object
+
+      Data has a column named 'State_name'. The matching key in ``Geocoder`` is always 'state' (providing it is a state-level geocoder) and can be omitted:
+
+      - map_join='State_Name'
+      - map_join=['State_Name']
+
+    - Joining data by composite key
+
+      Joining by composite key works like in examples above, but instead of using a string for a simple key you need to use an array of strings for a composite key. The names in the composite key must be in the same order as in the US street addresses convention: 'city', 'county', 'state', 'country'. For example, the data has columns 'State_name' and 'County_name'. Joining with a 2-keys county level ``Geocoder`` object (the ``Geocoder`` keys 'county' and 'state' are omitted in this case):
+
+      - map_join=['County_name', 'State_Name']
+
+    ----
+
+    To hide axis tooltips, set 'blank' or the result of `element_blank() <https://lets-plot.org/python/pages/api/lets_plot.element_blank.html>`__
+    to the ``axis_tooltip``, ``axis_tooltip_x`` or ``axis_tooltip_y`` parameter of the `theme() <https://lets-plot.org/python/pages/api/lets_plot.theme.html>`__.
+
+    Examples
+    --------
+    .. jupyter-execute::
+        :linenos:
+        :emphasize-lines: 6
+
+        import numpy as np
+        from lets_plot import *
+        LetsPlot.setup_html()
+        np.random.seed(42)
+        data = {'x': np.random.normal(size=100), 'y': np.random.normal(size=100)}
+        ggplot(data, aes(x='x', y='y')) + geom_ngon(size=8, fill='skyblue', color='white')
+
+    |
+
+    .. jupyter-execute::
+        :linenos:
+        :emphasize-lines: 8
+
+        import numpy as np
+        from lets_plot import *
+        LetsPlot.setup_html()
+        np.random.seed(42)
+        n = 100
+        data = {'x': np.random.normal(size=n), 'y': np.random.normal(size=n), 'k': np.random.randint(3, 9, size=n)}
+        ggplot(data, aes(x='x', y='y')) + geom_ngon(aes(sidecount='k', fill='k'), size=9, color='white')
     """
     return _geom('ngon',
                  mapping=mapping,
