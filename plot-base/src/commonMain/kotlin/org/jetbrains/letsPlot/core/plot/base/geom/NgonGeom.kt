@@ -21,7 +21,6 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 
 class NgonGeom : GeomBase() {
-    var sideCount: Int = DEF_SIDE_COUNT
     var sizeUnit: String? = null
 
     override val geomName: String = "ngon"
@@ -58,10 +57,9 @@ class NgonGeom : GeomBase() {
             val radius = AesScaling.circleDiameter(p) * scaleFactor / 2.0
             if (!radius.isFinite() || radius <= 0.0) continue
 
-            val sideCount = p[Aes.SIDECOUNT]
-                ?.takeIf { it.isFinite() }
+            val sideCount = p.finiteOrNull(Aes.SIDECOUNT)
                 ?.roundToInt()
-                ?: this.sideCount
+                ?: continue
 
             val polygonPoints = polygon(clientCenter, radius, sideCount)
 
@@ -98,7 +96,6 @@ class NgonGeom : GeomBase() {
     }
 
     companion object {
-        const val DEF_SIDE_COUNT = 5
         const val HANDLES_GROUPS = false
 
         private const val MIN_SIDE_COUNT = 3
