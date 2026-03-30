@@ -64,7 +64,6 @@ class NgonGeom : GeomBase() {
                 ?: this.sideCount
 
             val polygonPoints = polygon(clientCenter, radius, sideCount)
-            if (polygonPoints.size < 4) continue
 
             val path = LinePath.polygon(polygonPoints)
             linesHelper.decorate(path, p, filled = true) {
