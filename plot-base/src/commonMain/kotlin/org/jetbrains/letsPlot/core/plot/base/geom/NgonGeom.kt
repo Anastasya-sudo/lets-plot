@@ -77,9 +77,11 @@ class NgonGeom : GeomBase() {
             }
 
             root.add(path.rootGroup)
-            targetCollector.addPolygon(
-                points = polygonPoints,
+            val tooltipRadius = radius + AesScaling.strokeWidth(p, DataPointAesthetics::stroke) / 2.0
+            targetCollector.addPoint(
                 index = p.index(),
+                point = clientCenter,
+                radius = tooltipRadius,
                 tooltipParams = GeomTargetCollector.TooltipParams(
                     markerColors = colorsByDataPoint(p)
                 )
