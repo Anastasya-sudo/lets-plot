@@ -76,6 +76,11 @@ class AestheticsDefaults private constructor(
                 .updateInLegend(Aes.SIZE, 5.0)
         }
 
+        private fun ngon(geomTheme: GeomTheme): AestheticsDefaults {
+            return point(geomTheme)
+                .update(Aes.SIZE, 7.0)
+        }
+
         private fun bar(geomTheme: GeomTheme): AestheticsDefaults {
             return base(geomTheme)
                 .update(Aes.WIDTH, 0.9)
@@ -141,11 +146,12 @@ class AestheticsDefaults private constructor(
         fun create(geomKind: GeomKind, geomTheme: GeomTheme): AestheticsDefaults {
             return when (geomKind) {
                 GeomKind.POINT,
-                GeomKind.NGON,
                 GeomKind.JITTER,
                 GeomKind.SINA,
                 GeomKind.Q_Q,
                 GeomKind.Q_Q_2 -> point(geomTheme)
+
+                GeomKind.NGON -> ngon(geomTheme)
 
                 GeomKind.BAR -> bar(geomTheme)
 
