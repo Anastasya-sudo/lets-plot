@@ -81,7 +81,17 @@ internal object PlotConfigScaleProviders {
                 else -> aes
             }
 
-            scaleProviderBuilderByAes.getOrElse(scaleAes) { ScaleProviderBuilder(scaleAes) }
+            val configuredBuilder = scaleProviderBuilderByAes[scaleAes]
+            if (configuredBuilder != null) {
+                configuredBuilder
+            } else {
+                ScaleProviderBuilder(scaleAes).apply {
+                    // `sidecount` is semantically discrete (number of polygon sides in `geom_ngon`).
+                    if (scaleAes == Aes.SIDECOUNT) {
+                        discreteDomain(true)
+                    }
+                }
+            }
         }
 
         if (zeroPositionalExpands) {
