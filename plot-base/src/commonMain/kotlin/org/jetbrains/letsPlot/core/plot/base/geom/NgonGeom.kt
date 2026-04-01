@@ -59,10 +59,10 @@ class NgonGeom : GeomBase() {
             val scaleFactor = if (sizeUnit.isNullOrBlank()) {
                 ctx.getScaleFactor()
             } else {
-                AesScaling.sizeUnitRatio(center, coord, sizeUnit, AesScaling.POINT_UNIT_SIZE)
+                AesScaling.sizeUnitRatio(center, coord, sizeUnit, AesScaling.NGON_UNIT_SIZE)
             }
 
-            val radius = AesScaling.circleDiameter(p) * scaleFactor / 2.0
+            val radius = AesScaling.ngonDiameter(p) * scaleFactor / 2.0
             if (!radius.isFinite() || radius <= 0.0) continue
 
             val sideCount = p.finiteOrNull(Aes.SIDECOUNT)
@@ -109,7 +109,7 @@ class NgonGeom : GeomBase() {
         override fun createKeyElement(p: DataPointAesthetics, size: DoubleVector): SvgGElement {
             val strokeWidth = AesScaling.strokeWidth(p, DataPointAesthetics::stroke)
             val maxRadius = (min(size.x, size.y) - strokeWidth) / 2.0
-            val radius = min(AesScaling.circleDiameter(p) / 2.0, maxRadius).coerceAtLeast(0.0)
+            val radius = min(AesScaling.ngonDiameter(p) / 2.0, maxRadius).coerceAtLeast(0.0)
 
             val sideCount = p.finiteOrNull(Aes.SIDECOUNT)
                 ?.roundToInt()
@@ -129,7 +129,7 @@ class NgonGeom : GeomBase() {
         }
 
         override fun minimumKeySize(p: DataPointAesthetics): DoubleVector {
-            val shapeSize = AesScaling.circleDiameter(p)
+            val shapeSize = AesScaling.ngonDiameter(p)
             val strokeWidth = AesScaling.strokeWidth(p, DataPointAesthetics::stroke)
             val size = shapeSize + strokeWidth + 2.0
             return DoubleVector(size, size)

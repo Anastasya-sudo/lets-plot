@@ -78,7 +78,7 @@ class AestheticsDefaults private constructor(
 
         private fun ngon(geomTheme: GeomTheme): AestheticsDefaults {
             return point(geomTheme)
-                .update(Aes.SIZE, 7.0)
+                .update(Aes.SIZE, 2.0)
         }
 
         private fun bar(geomTheme: GeomTheme): AestheticsDefaults {
