@@ -25,7 +25,7 @@ class PointRenderer(
     sideCount: Int? = null,
 ) : Renderer {
     private val angle = toRadians(degreeAngle)
-ено    private val sideCount = sideCount?.coerceAtLeast(MIN_SIDE_COUNT)
+    private val sideCount = sideCount?.coerceAtLeast(MIN_SIDE_COUNT)
 
     override fun render(entity: EcsEntity, ctx: Context2d, renderHelper: RenderHelper) {
         val chartElement = entity.get<ChartElementComponent>()
