@@ -41,6 +41,7 @@ object LayerConverter {
 
             val (layerKind, dataPointLiveMapAesthetics) = when (layer.geomKind) {
                 POINT -> MapLayerKind.POINT to dataPointsConverter.toPoint(layer.geom as PointGeom)
+                NGON -> MapLayerKind.NGON to dataPointsConverter.toNgon()
                 H_LINE -> MapLayerKind.H_LINE to dataPointsConverter.toHorizontalLine()
                 V_LINE -> MapLayerKind.V_LINE to dataPointsConverter.toVerticalLine()
                 SEGMENT -> MapLayerKind.PATH to dataPointsConverter.toSegment(layer.geom as SegmentGeom)
@@ -104,6 +105,24 @@ object LayerConverter {
                         shape = it.shape
                         angle = it.angle
                         radius = it.radius
+                        fillColor = it.fillColor
+                        strokeColor = it.strokeColor
+                        strokeWidth = it.strokeWidth
+                    }
+                }
+            }
+
+            MapLayerKind.NGON -> points {
+                liveMapDataPoints.forEach {
+                    point {
+                        this.sizeScalingRange = sizeScalingRange
+                        this.alphaScalingEnabled = alphaScalingEnabled
+                        layerIndex = layerIdx
+                        index = it.index
+                        point = it.point
+                        label = it.label
+                        radius = it.radius
+                        sideCount = it.sideCount
                         fillColor = it.fillColor
                         strokeColor = it.strokeColor
                         strokeWidth = it.strokeWidth
