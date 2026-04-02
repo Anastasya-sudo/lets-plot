@@ -413,7 +413,6 @@ object Option {
         }
 
         object Ngon {
-            const val SIDECOUNT = "sidecount"
             const val SIZE_UNIT = "size_unit"
         }
 

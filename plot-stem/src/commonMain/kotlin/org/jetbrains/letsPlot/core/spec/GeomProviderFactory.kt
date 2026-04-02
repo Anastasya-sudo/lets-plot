@@ -339,7 +339,6 @@ internal object GeomProviderFactory {
 
             GeomKind.NGON -> GeomProvider.ngon {
                 val geom = NgonGeom()
-                geom.sideCount = layerConfig.getIntegerDef(Option.Geom.Ngon.SIDECOUNT, NgonGeom.DEF_SIDE_COUNT)
                 geom.sizeUnit = layerConfig.getString(Option.Geom.Ngon.SIZE_UNIT)?.lowercase()
                 geom
             }

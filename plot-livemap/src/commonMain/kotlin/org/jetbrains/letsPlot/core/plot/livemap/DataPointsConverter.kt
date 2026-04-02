@@ -72,6 +72,7 @@ internal class DataPointsConverter(
     }
 
     fun toPoint(geom: PointGeom) = pointFeatureConverter.point(geom)
+    fun toNgon() = pointFeatureConverter.ngon()
     fun toHorizontalLine() = pointFeatureConverter.hLine()
     fun toVerticalLine() = pointFeatureConverter.vLine()
     fun toSegment(geom: SegmentGeom) = mySinglePathFeatureConverter.segment(geom)
@@ -326,6 +327,16 @@ internal class DataPointsConverter(
             myAnimation = parsePointAnimation(geom.animation)
 
             return process(MapLayerKind.POINT) { explicitVec(it.x()!!, it.y()!!) }
+        }
+
+        fun ngon(): List<DataPointLiveMapAesthetics> {
+            return process(MapLayerKind.NGON) {
+                if (SeriesUtil.allFinite(it.x(), it.y(), it.size(), it.finiteOrNull(Aes.SIDECOUNT))) {
+                    explicitVec(it.x()!!, it.y()!!)
+                } else {
+                    null
+                }
+            }
         }
 
         fun hLine(): List<DataPointLiveMapAesthetics> {

@@ -47,7 +47,6 @@ internal class DefaultGeomTheme private constructor(
 
     companion object {
         private const val COMMON_POINT_SIZE = 3.0
-        private const val NGON_SIZE = 7.0
         private const val COMMON_LINE_WIDTH = 0.75
         private const val THIN_LINE_WIDTH = 0.5
         private const val ZERO_LINE_WIDTH = 0.0
@@ -61,9 +60,8 @@ internal class DefaultGeomTheme private constructor(
 
             // Size: point size or line width - depending on the geom kind.
             val size = when (geomKind) {
-                GeomKind.NGON -> NGON_SIZE
-
                 GeomKind.POINT,
+                GeomKind.NGON,
                 GeomKind.JITTER,
                 GeomKind.SINA,
                 GeomKind.Q_Q,

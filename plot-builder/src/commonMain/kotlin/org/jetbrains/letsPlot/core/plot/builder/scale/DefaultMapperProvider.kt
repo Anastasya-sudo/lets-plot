@@ -85,6 +85,8 @@ import org.jetbrains.letsPlot.core.plot.builder.scale.mapper.GuideMappers
 import org.jetbrains.letsPlot.core.plot.builder.scale.mapper.LineTypeMapper
 import org.jetbrains.letsPlot.core.plot.builder.scale.mapper.ShapeMapper
 import org.jetbrains.letsPlot.core.plot.builder.scale.provider.AlphaMapperProvider
+import org.jetbrains.letsPlot.core.plot.builder.scale.provider.IdentityDiscreteMapperProvider
+import org.jetbrains.letsPlot.core.plot.builder.scale.provider.IdentityMapperProvider
 import org.jetbrains.letsPlot.core.plot.builder.scale.provider.LinewidthMapperProvider
 import org.jetbrains.letsPlot.core.plot.builder.scale.provider.SizeMapperProvider
 import org.jetbrains.letsPlot.core.plot.builder.scale.provider.StrokeMapperProvider
@@ -174,7 +176,7 @@ object DefaultMapperProvider {
             this.put(VJUST, createObjectIdentity())
             this.put(ANGLE, NUMERIC_IDENTITY)
             this.put(RADIUS, NUMERIC_IDENTITY)
-            this.put(SIDECOUNT, NUMERIC_IDENTITY)
+            this.put(SIDECOUNT, SIDECOUNT_IDENTITY)
 
             this.put(SLICE, NUMERIC_IDENTITY)
             this.put(EXPLODE, NUMERIC_IDENTITY)
@@ -236,6 +238,13 @@ object DefaultMapperProvider {
                     return GuideMappers.IDENTITY
                 }
             }
+
+            private val SIDECOUNT_IDENTITY: MapperProvider<Double> = IdentityMapperProvider(
+                discreteMapperProvider = IdentityDiscreteMapperProvider { value ->
+                    (value as? Number)?.toDouble()
+                },
+                continuousMapper = Mappers.IDENTITY
+            )
         }
     }
 }

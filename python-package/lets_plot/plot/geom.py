@@ -239,7 +239,7 @@ def geom_ngon(mapping=None, *, data=None, stat=None, position=None, show_legend=
               manual_key=None, sampling=None,
               tooltips=None,
               map=None, map_join=None, use_crs=None,
-              sidecount=None, size_unit=None,
+              size_unit=None,
               color_by=None, fill_by=None,
               **other_args):
     """
@@ -291,9 +291,6 @@ def geom_ngon(mapping=None, *, data=None, stat=None, position=None, show_legend=
         If an EPSG code is given, then all the coordinates in ``GeoDataFrame`` (see the ``map`` parameter)
         will be projected to this CRS.
         Specify "provided" to disable any further re-projection and to keep the ``GeoDataFrame``'s original CRS.
-    sidecount : int, default=5
-        Number of polygon sides.
-        Values less than 3 are treated as 3.
     size_unit : {'x', 'y', 'min', 'max'}
         Relate the size of the n-gon to the length of the unit step along one of the axes.
         'x' uses the unit step along the x-axis, 'y' uses the unit step along the y-axis.
@@ -326,7 +323,7 @@ def geom_ngon(mapping=None, *, data=None, stat=None, position=None, show_legend=
     - alpha : transparency level of the n-gon. Accept values between 0 and 1.
     - color (colour) : color of the geometry. For more info see `Color and Fill <https://lets-plot.org/python/pages/aesthetics.html#color-and-fill>`__.
     - fill : fill color. For more info see `Color and Fill <https://lets-plot.org/python/pages/aesthetics.html#color-and-fill>`__.
-    - size : size of the n-gon. Default in the default theme is 7.
+    - size : size of the n-gon. Default in the default theme is 2.
     - stroke : width of the n-gon border.
     - sidecount : number of sides of the n-gon (rounded to integer).
 
@@ -404,7 +401,7 @@ def geom_ngon(mapping=None, *, data=None, stat=None, position=None, show_legend=
                  sampling=sampling,
                  tooltips=tooltips,
                  map=map, map_join=map_join, use_crs=use_crs,
-                 sidecount=sidecount, size_unit=size_unit,
+                 size_unit=size_unit,
                  color_by=color_by, fill_by=fill_by,
                  **other_args)
 

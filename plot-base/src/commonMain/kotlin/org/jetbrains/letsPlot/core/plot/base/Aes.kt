@@ -250,7 +250,6 @@ class Aes<T> private constructor(val name: String, val isNumeric: Boolean = true
                     aes == VJUST ||
                     aes == ANGLE ||
                     aes == RADIUS ||
-                    aes == SIDECOUNT ||
                     aes == FAMILY ||
                     aes == FONTFACE ||
                     aes == LINEHEIGHT ||
