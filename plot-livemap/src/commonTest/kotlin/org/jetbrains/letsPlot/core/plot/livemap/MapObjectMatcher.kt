@@ -50,6 +50,7 @@ internal class MapObjectMatcher {
             V_LINE, H_LINE -> matchLine(mapEntity)
             PATH -> matchPath(mapEntity)
             POINT -> matchPoint(mapEntity)
+            NGON -> matchNgon(mapEntity)
             POLYGON -> matchPolygon(mapEntity)
             TEXT -> matchText(mapEntity)
         }
@@ -108,6 +109,17 @@ internal class MapObjectMatcher {
         point.assertExpectation(mapPoint.point)
         label.assertExpectation(mapPoint.label)
         animation.assertExpectation(mapPoint.animation)
+    }
+
+    private fun matchNgon(mapPoint: DataPointLiveMapAesthetics) {
+        //locationBoundingBoxes.assertExpectation(calculateBBoxes(mapPoint))
+        index.assertExpectation(mapPoint.index)
+        fillColor.assertExpectation(mapPoint.fillColor)
+        strokeColor.assertExpectation(mapPoint.strokeColor)
+        strokeWidth.assertExpectation(mapPoint.strokeWidth)
+        radius.assertExpectation(mapPoint.radius)
+        point.assertExpectation(mapPoint.point)
+        label.assertExpectation(mapPoint.label)
     }
 
     private fun matchPolygon(polygon: DataPointLiveMapAesthetics) {

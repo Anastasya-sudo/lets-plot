@@ -18,6 +18,7 @@ import org.jetbrains.letsPlot.core.plot.base.Aes
 import org.jetbrains.letsPlot.core.plot.base.Aes.Companion.MAP_ID
 import org.jetbrains.letsPlot.core.plot.base.DataPointAesthetics
 import org.jetbrains.letsPlot.core.plot.base.aes.AesInitValue
+import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
 import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil
 import org.jetbrains.letsPlot.core.plot.base.geom.PieGeom
 import org.jetbrains.letsPlot.core.plot.base.geom.util.ArrowSpec
@@ -33,6 +34,7 @@ import org.jetbrains.letsPlot.livemap.Client.Companion.px
 import org.jetbrains.letsPlot.livemap.api.GeoObject
 import org.jetbrains.letsPlot.livemap.chart.donut.StrokeSide
 import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 typealias LiveMapArrowSpec = org.jetbrains.letsPlot.livemap.chart.path.ArrowSpec
 internal class DataPointLiveMapAesthetics {
@@ -107,6 +109,7 @@ internal class DataPointLiveMapAesthetics {
     val speed get() = myP.speed()!!
     val family get() = myP.family()
     val angle get() = myP.angle()!!
+    val sideCount get() = myP.sidecount()!!.roundToInt()
     val shape get() = myP.shape()!!.code
     val size get() = AestheticsUtil.textSize(myP)
     val fillColor get() = colorWithAlpha(myP.fill()!!)
@@ -187,6 +190,7 @@ internal class DataPointLiveMapAesthetics {
     val radius: Double
         get() = when (myLayerKind) {
             POINT -> pointRadius(myP.shape()!!.size(myP))
+            NGON -> AesScaling.ngonDiameter(myP) / 2.0
             PIE -> AestheticsUtil.pieDiameter(myP) / 2.0
             else -> 0.0
         }
@@ -194,7 +198,7 @@ internal class DataPointLiveMapAesthetics {
     val strokeWidth
         get() = when (myLayerKind) {
             POLYGON, PATH, H_LINE, V_LINE -> AestheticsUtil.strokeWidth(myP)
-            POINT -> AestheticsUtil.pointStrokeWidth(myP)
+            POINT, NGON -> AestheticsUtil.pointStrokeWidth(myP)
             TEXT -> 0.0
             PIE -> myP.stroke() ?: 0.0
         }
