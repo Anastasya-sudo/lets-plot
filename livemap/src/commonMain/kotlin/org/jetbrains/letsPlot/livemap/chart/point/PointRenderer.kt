@@ -15,17 +15,13 @@ import org.jetbrains.letsPlot.livemap.mapengine.Renderer
 import org.jetbrains.letsPlot.livemap.mapengine.placement.WorldOriginComponent
 import org.jetbrains.letsPlot.livemap.mapengine.translate
 import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 class PointRenderer(
     private val shape: Int,
-    degreeAngle: Double,
-    sideCount: Int? = null,
+    degreeAngle: Double
 ) : Renderer {
     private val angle = toRadians(degreeAngle)
-    private val sideCount = sideCount?.coerceAtLeast(MIN_SIDE_COUNT)
 
     override fun render(entity: EcsEntity, ctx: Context2d, renderHelper: RenderHelper) {
         val chartElement = entity.get<ChartElementComponent>()
@@ -39,8 +35,7 @@ class PointRenderer(
             radius = pointData.scaledRadius(chartElement.scalingSizeFactor).value,
             stroke = chartElement.scaledStrokeWidth(),
             shape = shape,
-            angle = angle,
-            sideCount = sideCount,
+            angle = angle
         )
         if (chartElement.fillColor != null) {
             ctx.setFillStyle(chartElement.scaledFillColor())
@@ -52,20 +47,7 @@ class PointRenderer(
             ctx.stroke()
         }
     }
-
-    private fun drawMarker(
-        ctx: Context2d,
-        radius: Double,
-        stroke: Double,
-        shape: Int,
-        angle: Double,
-        sideCount: Int?,
-    ) {
-        if (sideCount != null) {
-            regularPolygon(ctx, radius, sideCount)
-            return
-        }
-
+    private fun drawMarker(ctx: Context2d, radius: Double, stroke: Double, shape: Int, angle: Double) {
         val needToRotate = shape !in listOf(1, 10, 16, 19, 20, 21) && angle != 0.0
         if (needToRotate) {
             ctx.rotate(angle)
@@ -125,22 +107,6 @@ class PointRenderer(
         if (needToRotate) {
             ctx.rotate(-angle)
         }
-    }
-
-    private fun regularPolygon(ctx: Context2d, radius: Double, sideCount: Int) {
-        val startAngle = -PI / 2.0
-
-        for (i in 0..sideCount) {
-            val angle = startAngle + 2.0 * PI * i / sideCount
-            val x = radius * cos(angle)
-            val y = radius * sin(angle)
-            if (i == 0) {
-                ctx.moveTo(x, y)
-            } else {
-                ctx.lineTo(x, y)
-            }
-        }
-        ctx.closePath()
     }
 
     private fun circle(ctx: Context2d, r: Double) {
@@ -209,7 +175,4 @@ class PointRenderer(
         ctx.closePath()
     }
 
-    companion object {
-        private const val MIN_SIDE_COUNT = 3
-    }
 }

@@ -69,7 +69,6 @@ class PointEntityBuilder(
     var label: String = ""
     var shape: Int = 1
     var angle: Double = 0.0
-    var sideCount: Int? = null
 
     fun build(nonInteractive: Boolean = false): EcsEntity {
         return myFactory.createStaticFeatureWithLocation("map_ent_s_point", point)
@@ -80,38 +79,31 @@ class PointEntityBuilder(
                         +IndexComponent(layerIndex!!, index!!)
                     }
                     + RenderableComponent().apply {
-                        renderer = PointRenderer(shape, angle, sideCount)
+                        renderer = PointRenderer(shape, angle)
                     }
                     +ChartElementComponent().apply {
                         sizeScalingRange = this@PointEntityBuilder.sizeScalingRange
                         alphaScalingEnabled = this@PointEntityBuilder.alphaScalingEnabled
-
-                        if (sideCount != null) {
-                            fillColor = this@PointEntityBuilder.fillColor
-                            strokeColor = this@PointEntityBuilder.strokeColor
-                            strokeWidth = this@PointEntityBuilder.strokeWidth
-                        } else {
-                            when (shape) {
-                                in 0..14 -> {
-                                    strokeColor = this@PointEntityBuilder.strokeColor
-                                    strokeWidth = this@PointEntityBuilder.strokeWidth
-                                }
-                                in 15..18, 20 -> {
-                                    fillColor = this@PointEntityBuilder.strokeColor
-                                    strokeWidth = 0.0
-                                }
-                                19 -> {
-                                    fillColor = this@PointEntityBuilder.strokeColor
-                                    strokeColor = this@PointEntityBuilder.strokeColor
-                                    strokeWidth = this@PointEntityBuilder.strokeWidth
-                                }
-                                in 21..25 -> {
-                                    fillColor = this@PointEntityBuilder.fillColor
-                                    strokeColor = this@PointEntityBuilder.strokeColor
-                                    strokeWidth = this@PointEntityBuilder.strokeWidth
-                                }
-                                else -> error("Not supported shape: ${this@PointEntityBuilder.shape}")
+                        when (shape) {
+                            in 0..14 -> {
+                                strokeColor = this@PointEntityBuilder.strokeColor
+                                strokeWidth = this@PointEntityBuilder.strokeWidth
                             }
+                            in 15..18, 20 -> {
+                                fillColor = this@PointEntityBuilder.strokeColor
+                                strokeWidth = 0.0
+                            }
+                            19 -> {
+                                fillColor = this@PointEntityBuilder.strokeColor
+                                strokeColor = this@PointEntityBuilder.strokeColor
+                                strokeWidth = this@PointEntityBuilder.strokeWidth
+                            }
+                            in 21..25 -> {
+                                fillColor = this@PointEntityBuilder.fillColor
+                                strokeColor = this@PointEntityBuilder.strokeColor
+                                strokeWidth = this@PointEntityBuilder.strokeWidth
+                            }
+                            else -> error("Not supported shape: ${this@PointEntityBuilder.shape}")
                         }
                     }
                     +PointComponent().apply {

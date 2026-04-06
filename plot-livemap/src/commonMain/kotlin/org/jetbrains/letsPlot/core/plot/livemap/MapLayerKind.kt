@@ -7,7 +7,6 @@ package org.jetbrains.letsPlot.core.plot.livemap
 
 enum class MapLayerKind {
     POINT,
-    NGON,
     POLYGON,
     PATH,
     H_LINE,
