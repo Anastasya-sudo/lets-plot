@@ -11,7 +11,7 @@ import org.jetbrains.letsPlot.core.plot.base.DataPointAesthetics
 
 object AesScaling {
     const val POINT_UNIT_SIZE = 2.2
-    const val NGON_UNIT_SIZE = 6.0
+    const val NGON_UNIT_SIZE = 4.0
     const val PIE_UNIT_SIZE = 10.0
     const val TEXT_UNIT_SIZE = 2.0
 
