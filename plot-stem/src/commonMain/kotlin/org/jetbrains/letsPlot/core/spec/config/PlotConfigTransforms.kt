@@ -44,7 +44,8 @@ internal object PlotConfigTransforms {
         val discreteAesSet: MutableSet<Aes<*>> = HashSet()
         for (aes in aesSet) {
             val scaleProvider = scaleProviderByAes.getValue(aes)
-            if (scaleProvider.discreteDomain) {
+            val mapperProvider = mapperProviderByAes.getValue(aes)
+            if (scaleProvider.discreteDomain || mapperProvider is DiscreteOnlyMapperProvider<*>) {
                 discreteAesSet.add(aes)
             } else if (variablesByMappedAes.containsKey(aes)) {
                 val variables = variablesByMappedAes.getValue(aes)

@@ -323,7 +323,7 @@ def geom_ngon(mapping=None, *, data=None, stat=None, position=None, show_legend=
     - alpha : transparency level of the n-gon. Accept values between 0 and 1.
     - color (colour) : color of the geometry. For more info see `Color and Fill <https://lets-plot.org/python/pages/aesthetics.html#color-and-fill>`__.
     - fill : fill color. For more info see `Color and Fill <https://lets-plot.org/python/pages/aesthetics.html#color-and-fill>`__.
-    - size : size of the n-gon. Default in the default theme is 2.
+    - size : size of the n-gon.
     - stroke : width of the n-gon border.
     - sidecount : number of sides of the n-gon (rounded to integer).
 

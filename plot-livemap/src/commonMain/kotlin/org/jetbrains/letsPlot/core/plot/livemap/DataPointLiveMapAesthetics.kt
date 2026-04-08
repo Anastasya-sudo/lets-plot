@@ -109,10 +109,7 @@ internal class DataPointLiveMapAesthetics {
     val speed get() = myP.speed()!!
     val family get() = myP.family()
     val angle get() = myP.angle()!!
-
-    val sideCount: Int
-        get() = (myP.finiteOrNull(Aes.SIDECOUNT)?.roundToInt() ?: MIN_NGON_SIDE_COUNT)
-            .coerceAtLeast(MIN_NGON_SIDE_COUNT)
+    val sideCount get() = myP.sidecount()!!.roundToInt()
     val shape get() = myP.shape()!!.code
     val size get() = AestheticsUtil.textSize(myP)
     val fillColor get() = colorWithAlpha(myP.fill()!!)
@@ -275,10 +272,6 @@ internal class DataPointLiveMapAesthetics {
     fun setPieOptions(pieOptions: PieOptions?): DataPointLiveMapAesthetics {
         myPieOptions = pieOptions
         return this
-    }
-
-    companion object {
-        private const val MIN_NGON_SIDE_COUNT = 3
     }
 
     // Limit Lon Lat to -180, 180; -90, 90

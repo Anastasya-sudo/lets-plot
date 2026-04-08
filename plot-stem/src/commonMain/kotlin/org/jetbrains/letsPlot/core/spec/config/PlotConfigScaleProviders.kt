@@ -85,12 +85,7 @@ internal object PlotConfigScaleProviders {
             if (configuredBuilder != null) {
                 configuredBuilder
             } else {
-                ScaleProviderBuilder(scaleAes).apply {
-                    // `sidecount` is semantically discrete (number of polygon sides in `geom_ngon`).
-                    if (scaleAes == Aes.SIDECOUNT) {
-                        discreteDomain(true)
-                    }
-                }
+                ScaleProviderBuilder(scaleAes)
             }
         }
 

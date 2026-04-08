@@ -330,13 +330,7 @@ internal class DataPointsConverter(
         }
 
         fun ngon(): List<DataPointLiveMapAesthetics> {
-            return process(MapLayerKind.NGON) {
-                if (SeriesUtil.allFinite(it.x(), it.y(), it.size(), it.finiteOrNull(Aes.SIDECOUNT))) {
-                    explicitVec(it.x()!!, it.y()!!)
-                } else {
-                    null
-                }
-            }
+            return process(MapLayerKind.NGON) { explicitVec(it.x()!!, it.y()!!) }
         }
 
         fun hLine(): List<DataPointLiveMapAesthetics> {

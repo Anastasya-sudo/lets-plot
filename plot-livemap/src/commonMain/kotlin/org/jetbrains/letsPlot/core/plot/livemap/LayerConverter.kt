@@ -112,9 +112,9 @@ object LayerConverter {
                 }
             }
 
-            MapLayerKind.NGON -> points {
+            MapLayerKind.NGON -> ngons {
                 liveMapDataPoints.forEach {
-                    point {
+                    ngon {
                         this.sizeScalingRange = sizeScalingRange
                         this.alphaScalingEnabled = alphaScalingEnabled
                         layerIndex = layerIdx
