@@ -23,6 +23,7 @@ import org.jetbrains.letsPlot.core.plot.base.geom.DimensionUnit.*
 import org.jetbrains.letsPlot.core.plot.base.geom.util.ArrowSpec.Companion.toArrowAes
 import org.jetbrains.letsPlot.core.plot.base.geom.util.ArrowSpec.Type.CLOSED
 import org.jetbrains.letsPlot.core.plot.base.render.svg.StrokeDashArraySupport
+import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.datamodel.svg.dom.*
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathDataBuilder.Interpolation
@@ -236,25 +237,26 @@ open class GeomHelper(
             if (lineString.isEmpty() || lineString.size == 1) return null
 
             val lineStringAfterPadding = padLineString(lineString, p, padArrow = true)
+            val handDrawn = XkcdPathEffect.toHandDrawn(lineStringAfterPadding)
 
-            val lineElement = if (lineStringAfterPadding.size == 2) {
+            val lineElement = if (handDrawn.size == 2) {
                 // Simple SvgLineElement is enough for a straight line without arrow
                 SvgLineElement().apply {
-                    x1().set(lineStringAfterPadding.first().x)
-                    y1().set(lineStringAfterPadding.first().y)
-                    x2().set(lineStringAfterPadding.last().x)
-                    y2().set(lineStringAfterPadding.last().y)
+                    x1().set(handDrawn.first().x)
+                    y1().set(handDrawn.first().y)
+                    x2().set(handDrawn.last().x)
+                    y2().set(handDrawn.last().y)
                 }
             } else {
                 SvgPathElement().apply {
                     d().set(
                         if (myInterpolation != null) {
                             SvgPathDataBuilder()
-                                .moveTo(lineStringAfterPadding.first())
-                                .interpolatePoints(lineStringAfterPadding, myInterpolation!!)
+                                .moveTo(handDrawn.first())
+                                .interpolatePoints(handDrawn.drop(1), myInterpolation!!)
                                 .build()
                         } else {
-                            SvgPathDataBuilder().lineString(lineStringAfterPadding).build()
+                            SvgPathDataBuilder().lineString(handDrawn).build()
                         }
                     )
                 }
@@ -263,7 +265,7 @@ open class GeomHelper(
 
             val arrowElements = myArrowSpec?.let { arrowSpec ->
                 val (startHead, endHead) = ArrowSupport.createArrowHeads(
-                    lineString = lineStringAfterPadding,
+                    lineString = handDrawn,
                     angle = arrowSpec.angle,
                     arrowLength = arrowSpec.length,
                     onStart = arrowSpec.isOnFirstEnd,
@@ -278,7 +280,7 @@ open class GeomHelper(
             } ?: emptyList()
 
             val debugPoints = if (myDebugRendering) {
-                lineStringAfterPadding.map {
+                handDrawn.map {
                     SvgCircleElement(it.x, it.y, 1.0).apply {
                         fillColor().set(Color.LIGHT_GREEN)
                         strokeColor().set(Color.GREEN)

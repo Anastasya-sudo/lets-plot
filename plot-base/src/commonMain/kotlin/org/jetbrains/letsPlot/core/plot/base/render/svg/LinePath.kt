@@ -30,37 +30,6 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
         add(myPath)
     }
 
-    /*
-  private void build(List<DoubleVector> points, boolean isPolygon) {
-    SvgPathDataBuilder builder = new SvgPathDataBuilder(true);
-
-    List<DoubleVector> curSegment = new ArrayList<>();
-    boolean interpolate = false;
-    for (DoubleVector point : points) {
-      if (point == END_OF_SUBPATH) {
-        buildSegment(builder, curSegment, interpolate);
-        if (isPolygon) {
-          builder.closePath();
-        }
-        curSegment = new ArrayList<>();
-      } else {
-        curSegment.add(point);
-      }
-    }
-    buildSegment(builder, curSegment, interpolate);
-    if (isPolygon) {
-      builder.closePath();
-    }
-
-    myPath = new SvgPathElement(builder.build());
-    myPath.fill().set(SvgColor.NONE);
-    double lineWidth = 1.;
-    myPath.strokeWidth().set(lineWidth);
-
-    add(myPath);
-  }
-  */
-
     override fun buildComponent() {
 
     }
@@ -123,14 +92,9 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
             val builder = SvgPathDataBuilder(true)
 
             var curSegment: MutableList<DoubleVector> = ArrayList()
-            val interpolate = false
             for (point in points) {
                 if (point === END_OF_SUBPATH) {
-                    buildSegment(
-                        builder,
-                        curSegment,
-                        interpolate
-                    )
+                    buildSegment(builder, curSegment)
                     if (isPolygon) {
                         builder.closePath()
                     }
@@ -139,11 +103,7 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
                     curSegment.add(point!!)
                 }
             }
-            buildSegment(
-                builder,
-                curSegment,
-                interpolate
-            )
+            buildSegment(builder, curSegment)
             if (isPolygon) {
                 builder.closePath()
             }
@@ -151,14 +111,16 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
             return builder
         }
 
-        private fun buildSegment(builder: SvgPathDataBuilder, curSegment: List<DoubleVector>, interpolate: Boolean) {
+        private fun buildSegment(builder: SvgPathDataBuilder, curSegment: List<DoubleVector>) {
             if (curSegment.isEmpty()) {
                 return
             }
-            builder.moveTo(curSegment[0])
+
+            val handDrawnSegment = XkcdPathEffect.toHandDrawn(curSegment)
+            builder.moveTo(handDrawnSegment[0])
             builder.interpolatePoints(
-                curSegment,
-                if (interpolate) SvgPathDataBuilder.Interpolation.CARDINAL else SvgPathDataBuilder.Interpolation.LINEAR
+                handDrawnSegment.drop(1),
+                SvgPathDataBuilder.Interpolation.LINEAR
             )
         }
     }
