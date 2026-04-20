@@ -118,12 +118,10 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
 
             val handDrawnSegment = XkcdPathEffect.toHandDrawn(curSegment)
             builder.moveTo(handDrawnSegment[0])
-            if (handDrawnSegment.size > 1) {
-                builder.interpolatePoints(
-                    handDrawnSegment.drop(1),
-                    SvgPathDataBuilder.Interpolation.LINEAR
-                )
-            }
+            builder.interpolatePoints(
+                handDrawnSegment.drop(1),
+                SvgPathDataBuilder.Interpolation.LINEAR
+            )
         }
     }
 }
