@@ -10,12 +10,14 @@ import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.intern.typedGeometry.algorithms.AdaptiveResampler
 import org.jetbrains.letsPlot.commons.intern.typedGeometry.algorithms.AdaptiveResampler.Companion.resample
 import org.jetbrains.letsPlot.core.commons.geometry.PolylineSimplifier
+import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgNode
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathDataBuilder
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathElement
+import org.jetbrains.letsPlot.datamodel.svg.dom.SvgRectElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.slim.SvgSlimElements
 import org.jetbrains.letsPlot.datamodel.svg.dom.slim.SvgSlimGroup
 
@@ -30,17 +32,25 @@ class RectanglesHelper(
     fun createNonLinearRectangles(handler: (DataPointAesthetics, SvgNode, List<DoubleVector>) -> Unit) {
         myAesthetics.dataPoints().forEach { p ->
             geometryFactory(p)?.let { rect ->
-                val polyRect = resample(
+                var polyRect = resample(
                     precision = AdaptiveResampler.PIXEL_PRECISION,
-                    points = rectanglePath(rect)
+                    points = listOf(
+                        DoubleVector(rect.left, rect.top),
+                        DoubleVector(rect.right, rect.top),
+                        DoubleVector(rect.right, rect.bottom),
+                        DoubleVector(rect.left, rect.bottom),
+                        DoubleVector(rect.left, rect.top)
+                    )
                 ) { toClient(it, p) }
-                val handDrawn = XkcdPathEffect.toHandDrawn(polyRect)
+                if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                    polyRect = XkcdPathEffect.toHandDrawn(polyRect)
+                }
 
                 val svgPoly = SvgPathElement()
-                svgPoly.d().set(SvgPathDataBuilder().lineString(handDrawn).build())
+                svgPoly.d().set(SvgPathDataBuilder().lineString(polyRect).build())
 
                 decorate(svgPoly, p)
-                handler(p, svgPoly, handDrawn)
+                handler(p, svgPoly, polyRect)
             }
         }
     }
@@ -49,12 +59,26 @@ class RectanglesHelper(
         myAesthetics.dataPoints().forEach { p ->
             geometryFactory(p)?.let { rect ->
                 val clientRect = toClient(rect, p) ?: return@let
-                val handDrawn = XkcdPathEffect.toHandDrawn(rectanglePath(clientRect))
-                val svgPath = SvgPathElement().apply {
-                    d().set(SvgPathDataBuilder().lineString(handDrawn).build())
+                if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                    val handDrawnRect = XkcdPathEffect.toHandDrawn(
+                        listOf(
+                            DoubleVector(clientRect.left, clientRect.top),
+                            DoubleVector(clientRect.right, clientRect.top),
+                            DoubleVector(clientRect.right, clientRect.bottom),
+                            DoubleVector(clientRect.left, clientRect.bottom),
+                            DoubleVector(clientRect.left, clientRect.top)
+                        )
+                    )
+                    val svgPath = SvgPathElement().apply {
+                        d().set(SvgPathDataBuilder().lineString(handDrawnRect).build())
+                    }
+                    decorate(svgPath, p)
+                    handler(p, svgPath, clientRect)
+                } else {
+                    val svgRect = SvgRectElement(clientRect)
+                    decorate(svgRect, p)
+                    handler(p, svgRect, clientRect)
                 }
-                decorate(svgPath, p)
-                handler(p, svgPath, clientRect)
             }
         }
     }
@@ -66,13 +90,26 @@ class RectanglesHelper(
             val p = myAesthetics.dataPointAt(index)
             val clientRect = geometryFactory(p) ?: continue
 
-            val handDrawn = XkcdPathEffect.toHandDrawn(rectanglePath(clientRect))
-            val svgPath = SvgPathElement().apply {
-                d().set(SvgPathDataBuilder().lineString(handDrawn).build())
+            if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                val handDrawnRect = XkcdPathEffect.toHandDrawn(
+                    listOf(
+                        DoubleVector(clientRect.left, clientRect.top),
+                        DoubleVector(clientRect.right, clientRect.top),
+                        DoubleVector(clientRect.right, clientRect.bottom),
+                        DoubleVector(clientRect.left, clientRect.bottom),
+                        DoubleVector(clientRect.left, clientRect.top)
+                    )
+                )
+                val svgPath = SvgPathElement().apply {
+                    d().set(SvgPathDataBuilder().lineString(handDrawnRect).build())
+                }
+                decorate(svgPath, p)
+                result.add(svgPath)
+            } else {
+                val svgRect = SvgRectElement(clientRect)
+                decorate(svgRect, p)
+                result.add(svgRect)
             }
-            decorate(svgPath, p)
-
-            result.add(svgPath)
         }
 
         return result
@@ -110,22 +147,30 @@ class RectanglesHelper(
                 if (myResamplingEnabled) {
                     val polyRect = resample(
                         precision = myResamplingPrecision,
-                        points = rectanglePath(rect)
+                        points = listOf(
+                            DoubleVector(rect.left, rect.top),
+                            DoubleVector(rect.right, rect.top),
+                            DoubleVector(rect.right, rect.bottom),
+                            DoubleVector(rect.left, rect.bottom),
+                            DoubleVector(rect.left, rect.top)
+                        )
                     ) { toClient(it, p) }
 
                     // Resampling of a tiny rectangle still can produce a very small polygon - simplify it.
-                    val simplified = PolylineSimplifier.douglasPeucker(polyRect).setWeightLimit(PolylineSimplifier.DOUGLAS_PEUCKER_PIXEL_THRESHOLD).points.let {
+                    var simplified = PolylineSimplifier.douglasPeucker(polyRect).setWeightLimit(PolylineSimplifier.DOUGLAS_PEUCKER_PIXEL_THRESHOLD).points.let {
                         if (it.size != 1) {
                             println("RectanglesHelper: expected a single path, but got ${it.size}")
                         }
 
                         it.firstOrNull() ?: emptyList()
                     }
-                    val handDrawn = XkcdPathEffect.toHandDrawn(simplified)
+                    if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                        simplified = XkcdPathEffect.toHandDrawn(simplified)
+                    }
 
                     onGeometry(p, null, simplified)
 
-                    val slimShape = SvgSlimElements.path(SvgPathDataBuilder().lineString(handDrawn).build())
+                    val slimShape = SvgSlimElements.path(SvgPathDataBuilder().lineString(simplified).build())
                     decorateSlimShape(slimShape, p)
                     slimShape.appendTo(group)
                 } else {
@@ -133,24 +178,28 @@ class RectanglesHelper(
 
                     onGeometry(p, clientRect, null)
 
-                    val handDrawn = XkcdPathEffect.toHandDrawn(rectanglePath(clientRect))
-                    val slimShape = SvgSlimElements.path(SvgPathDataBuilder().lineString(handDrawn).build())
-                    decorateSlimShape(slimShape, p)
-                    slimShape.appendTo(group)
+                    if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                        val handDrawnRect = XkcdPathEffect.toHandDrawn(
+                            listOf(
+                                DoubleVector(clientRect.left, clientRect.top),
+                                DoubleVector(clientRect.right, clientRect.top),
+                                DoubleVector(clientRect.right, clientRect.bottom),
+                                DoubleVector(clientRect.left, clientRect.bottom),
+                                DoubleVector(clientRect.left, clientRect.top)
+                            )
+                        )
+                        val slimShape = SvgSlimElements.path(SvgPathDataBuilder().lineString(handDrawnRect).build())
+                        decorateSlimShape(slimShape, p)
+                        slimShape.appendTo(group)
+                    } else {
+                        val slimShape = SvgSlimElements.rect(clientRect.left, clientRect.top, clientRect.width, clientRect.height)
+                        decorateSlimShape(slimShape, p)
+                        slimShape.appendTo(group)
+                    }
                 }
 
             }
             return group
         }
-    }
-
-    private fun rectanglePath(rect: DoubleRectangle): List<DoubleVector> {
-        return listOf(
-            DoubleVector(rect.left, rect.top),
-            DoubleVector(rect.right, rect.top),
-            DoubleVector(rect.right, rect.bottom),
-            DoubleVector(rect.left, rect.bottom),
-            DoubleVector(rect.left, rect.top)
-        )
     }
 }

@@ -8,6 +8,7 @@ package org.jetbrains.letsPlot.core.plot.base.render.svg
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.intern.observable.property.WritableProperty
 import org.jetbrains.letsPlot.commons.values.Color
+import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.render.linetype.LineType
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgColors
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathDataBuilder
@@ -29,6 +30,37 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
 
         add(myPath)
     }
+
+    /*
+  private void build(List<DoubleVector> points, boolean isPolygon) {
+    SvgPathDataBuilder builder = new SvgPathDataBuilder(true);
+
+    List<DoubleVector> curSegment = new ArrayList<>();
+    boolean interpolate = false;
+    for (DoubleVector point : points) {
+      if (point == END_OF_SUBPATH) {
+        buildSegment(builder, curSegment, interpolate);
+        if (isPolygon) {
+          builder.closePath();
+        }
+        curSegment = new ArrayList<>();
+      } else {
+        curSegment.add(point);
+      }
+    }
+    buildSegment(builder, curSegment, interpolate);
+    if (isPolygon) {
+      builder.closePath();
+    }
+
+    myPath = new SvgPathElement(builder.build());
+    myPath.fill().set(SvgColor.NONE);
+    double lineWidth = 1.;
+    myPath.strokeWidth().set(lineWidth);
+
+    add(myPath);
+  }
+  */
 
     override fun buildComponent() {
 
@@ -92,9 +124,14 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
             val builder = SvgPathDataBuilder(true)
 
             var curSegment: MutableList<DoubleVector> = ArrayList()
+            val interpolate = false
             for (point in points) {
                 if (point === END_OF_SUBPATH) {
-                    buildSegment(builder, curSegment)
+                    buildSegment(
+                        builder,
+                        curSegment,
+                        interpolate
+                    )
                     if (isPolygon) {
                         builder.closePath()
                     }
@@ -103,7 +140,11 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
                     curSegment.add(point!!)
                 }
             }
-            buildSegment(builder, curSegment)
+            buildSegment(
+                builder,
+                curSegment,
+                interpolate
+            )
             if (isPolygon) {
                 builder.closePath()
             }
@@ -111,17 +152,24 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
             return builder
         }
 
-        private fun buildSegment(builder: SvgPathDataBuilder, curSegment: List<DoubleVector>) {
+        private fun buildSegment(builder: SvgPathDataBuilder, curSegment: List<DoubleVector>, interpolate: Boolean) {
             if (curSegment.isEmpty()) {
                 return
             }
-
-            val handDrawnSegment = XkcdPathEffect.toHandDrawn(curSegment)
-            builder.moveTo(handDrawnSegment[0])
-            builder.interpolatePoints(
-                handDrawnSegment.drop(1),
-                SvgPathDataBuilder.Interpolation.LINEAR
-            )
+            if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                val handDrawn = XkcdPathEffect.toHandDrawn(curSegment)
+                builder.moveTo(handDrawn[0])
+                builder.interpolatePoints(
+                    handDrawn,
+                    if (interpolate) SvgPathDataBuilder.Interpolation.CARDINAL else SvgPathDataBuilder.Interpolation.LINEAR
+                )
+            } else {
+                builder.moveTo(curSegment[0])
+                builder.interpolatePoints(
+                    curSegment,
+                    if (interpolate) SvgPathDataBuilder.Interpolation.CARDINAL else SvgPathDataBuilder.Interpolation.LINEAR
+                )
+            }
         }
     }
 }

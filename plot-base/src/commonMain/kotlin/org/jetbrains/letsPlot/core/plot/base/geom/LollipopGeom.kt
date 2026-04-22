@@ -8,6 +8,7 @@ package org.jetbrains.letsPlot.core.plot.base.geom
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.interval.DoubleSpan
 import org.jetbrains.letsPlot.commons.values.Color
+import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
 import org.jetbrains.letsPlot.core.plot.base.geom.legend.LollipopLegendKeyElementFactory
@@ -20,6 +21,7 @@ import org.jetbrains.letsPlot.core.plot.base.render.point.NamedShape
 import org.jetbrains.letsPlot.core.plot.base.render.point.PointShapeSvg
 import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgGElement
+import org.jetbrains.letsPlot.datamodel.svg.dom.SvgLineElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgNode
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -163,9 +165,15 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
                 return null
             }
             val neck = shiftHeadToBase(clientBase, clientHead, candyRadius) // meeting point of candy and stick
-            val svgElementHelper = GeomHelper.SvgElementHelper()
-                .setStrokeAlphaEnabled(true)
-            return svgElementHelper.createLine(clientBase, neck, point, strokeScaler = AesScaling::lineWidth)?.first
+            if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                val svgElementHelper = GeomHelper.SvgElementHelper()
+                    .setStrokeAlphaEnabled(true)
+                return svgElementHelper.createLine(clientBase, neck, point, strokeScaler = AesScaling::lineWidth)?.first
+            } else {
+                val line = SvgLineElement(clientBase.x, clientBase.y, neck.x, neck.y)
+                GeomHelper.decorate(line, point, applyAlphaToAll = true, strokeScaler = AesScaling::lineWidth)
+                return line
+            }
         }
 
         private fun shiftHeadToBase(
