@@ -15,7 +15,7 @@ fun approximateArc(
     startAngle: Double,
     endAngle: Double,
     arcPoint: (Double) -> DoubleVector,
-    precision: Double = AdaptiveResampler.PIXEL_PRECISION
+    precision: Double = AdaptiveResampler.PIXEL_PRECISION * 8.0
 ): List<DoubleVector> {
     val segmentLength = startPoint.subtract(endPoint).length()
     if (segmentLength == 0.0 || !segmentLength.isFinite()) {
