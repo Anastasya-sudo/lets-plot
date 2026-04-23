@@ -7,21 +7,23 @@ package org.jetbrains.letsPlot.core.plot.base.geom
 
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.intern.math.toRadians
-import org.jetbrains.letsPlot.commons.intern.typedGeometry.algorithms.AdaptiveResampler
-import org.jetbrains.letsPlot.commons.intern.typedGeometry.algorithms.AdaptiveResampler.Companion.resample
 import org.jetbrains.letsPlot.commons.interval.DoubleSpan
 import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.commons.values.Colors
+import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
 import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil
 import org.jetbrains.letsPlot.core.plot.base.geom.annotation.PieAnnotation
+import org.jetbrains.letsPlot.core.plot.base.geom.util.approximateArc
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomHelper
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil
 import org.jetbrains.letsPlot.core.plot.base.geom.util.HintColorUtil
 import org.jetbrains.letsPlot.core.plot.base.render.LegendKeyElementFactory
 import org.jetbrains.letsPlot.core.plot.base.render.SvgRoot
 import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
+import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
+import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgCircleElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgGElement
@@ -110,15 +112,21 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
     }
 
     private fun buildSvgSector(sector: Sector): LinePath {
-        return LinePath(
-            SvgPathDataBuilder().apply {
-                moveTo(sector.innerArcStart)
-                lineTo(sector.outerArcStart)
-                svgOuterArc(sector)
-                lineTo(sector.innerArcEnd)
-                svgInnerArc(sector)
-            }
-        ).apply {
+        val svgPath = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+            buildXkcdSvgSector(sector)
+        } else {
+            LinePath(
+                SvgPathDataBuilder().apply {
+                    moveTo(sector.innerArcStart)
+                    lineTo(sector.outerArcStart)
+                    svgOuterArc(sector)
+                    lineTo(sector.innerArcEnd)
+                    svgInnerArc(sector)
+                }
+            )
+        }
+
+        return svgPath.apply {
             val fill = sector.p.fill()!!
             val fillAlpha = AestheticsUtil.alpha(fill, sector.p)
             fill().set(Colors.withOpacity(fill, fillAlpha))
@@ -126,18 +134,24 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
     }
 
     private fun buildSvgArcs(sector: Sector): LinePath {
-        return LinePath(
-            SvgPathDataBuilder().apply {
-                if (strokeSide.hasOuter) {
-                    moveTo(sector.outerArcStart)
-                    svgOuterArc(sector)
+        val svgPath = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+            buildXkcdSvgArcs(sector)
+        } else {
+            LinePath(
+                SvgPathDataBuilder().apply {
+                    if (strokeSide.hasOuter) {
+                        moveTo(sector.outerArcStart)
+                        svgOuterArc(sector)
+                    }
+                    if (strokeSide.hasInner) {
+                        moveTo(sector.innerArcEnd)
+                        svgInnerArc(sector)
+                    }
                 }
-                if (strokeSide.hasInner) {
-                    moveTo(sector.innerArcEnd)
-                    svgInnerArc(sector)
-                }
-            }
-        ).apply {
+            )
+        }
+
+        return svgPath.apply {
             width().set(sector.strokeWidth)
             color().set(sector.p.color())
         }
@@ -147,13 +161,22 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
         fun svgSpacerLines(sector: Sector, atStart: Boolean, atEnd: Boolean): LinePath {
             return LinePath(
                 SvgPathDataBuilder().apply {
-                    if (atStart) {
-                        moveTo(sector.innerStrokeStartPoint)
-                        lineTo(sector.outerStrokeStartPoint)
-                    }
-                    if (atEnd) {
-                        moveTo(sector.innerStrokeEndPoint)
-                        lineTo(sector.outerStrokeEndPoint)
+                    if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                        if (atStart) {
+                            addHandDrawnLine(sector.innerStrokeStartPoint, sector.outerStrokeStartPoint)
+                        }
+                        if (atEnd) {
+                            addHandDrawnLine(sector.innerStrokeEndPoint, sector.outerStrokeEndPoint)
+                        }
+                    } else {
+                        if (atStart) {
+                            moveTo(sector.innerStrokeStartPoint)
+                            lineTo(sector.outerStrokeStartPoint)
+                        }
+                        if (atEnd) {
+                            moveTo(sector.innerStrokeEndPoint)
+                            lineTo(sector.outerStrokeEndPoint)
+                        }
                     }
                 }
             ).apply {
@@ -189,6 +212,86 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
         }
     }
 
+    private fun buildXkcdSvgSector(sector: Sector): LinePath {
+        val sectorPath = XkcdPathEffect.toHandDrawn(
+            buildSectorPath(
+                sector = sector,
+                outerArc = approximateArc(
+                    startPoint = sector.outerArcStart,
+                    endPoint = sector.outerArcEnd,
+                    startAngle = sector.startAngle,
+                    endAngle = sector.endAngleForDrawing(),
+                    arcPoint = sector::outerArcPoint
+                ),
+                innerArc = approximateArc(
+                    startPoint = sector.innerArcEnd,
+                    endPoint = sector.innerArcStart,
+                    startAngle = sector.endAngleForDrawing(),
+                    endAngle = sector.startAngle,
+                    arcPoint = sector::innerArcPoint
+                )
+            )
+        )
+
+        return LinePath(
+            SvgPathDataBuilder().apply {
+                lineString(sectorPath)
+                closePath()
+            }
+        )
+    }
+
+    private fun buildXkcdSvgArcs(sector: Sector): LinePath {
+        return LinePath(
+            SvgPathDataBuilder().apply {
+                if (strokeSide.hasOuter) {
+                    lineString(
+                        XkcdPathEffect.toHandDrawn(
+                            approximateArc(
+                                startPoint = sector.outerArcStart,
+                                endPoint = sector.outerArcEnd,
+                                startAngle = sector.startAngle,
+                                endAngle = sector.endAngleForDrawing(),
+                                arcPoint = sector::outerArcPointWithStroke
+                            )
+                        )
+                    )
+                }
+                if (strokeSide.hasInner) {
+                    lineString(
+                        XkcdPathEffect.toHandDrawn(
+                            approximateArc(
+                                startPoint = sector.innerArcEnd,
+                                endPoint = sector.innerArcStart,
+                                startAngle = sector.endAngleForDrawing(),
+                                endAngle = sector.startAngle,
+                                arcPoint = sector::innerArcPointWithStroke
+                            )
+                        )
+                    )
+                }
+            }
+        )
+    }
+
+    private fun SvgPathDataBuilder.addHandDrawnLine(start: DoubleVector, end: DoubleVector) {
+        lineString(XkcdPathEffect.toHandDrawn(listOf(start, end)))
+    }
+
+    private fun buildSectorPath(
+        sector: Sector,
+        outerArc: List<DoubleVector>,
+        innerArc: List<DoubleVector>
+    ): List<DoubleVector> {
+        return buildList {
+            add(sector.innerArcStart)
+            add(sector.outerArcStart)
+            addAll(outerArc.drop(1))
+            add(sector.innerArcEnd)
+            addAll(innerArc.drop(1))
+        }
+    }
+
     private fun buildHint(sector: Sector, targetCollector: GeomTargetCollector) {
         fun resampleArc(outerArc: Boolean): List<DoubleVector> {
             val arcPoint = when (outerArc) {
@@ -206,16 +309,13 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
                 false -> sector.innerStrokeEndPoint
             }
 
-            val segmentLength = startPoint.subtract(endPoint).length()
-
-            return resample(startPoint, endPoint, AdaptiveResampler.PIXEL_PRECISION) { p: DoubleVector ->
-                val ratio = p.subtract(startPoint).length() / segmentLength
-                if (ratio.isFinite()) {
-                    arcPoint(sector.startAngle + sector.angle * ratio)
-                } else {
-                    p
-                }
-            }
+            return approximateArc(
+                startPoint = startPoint,
+                endPoint = endPoint,
+                startAngle = sector.startAngle,
+                endAngle = sector.endAngleForDrawing(),
+                arcPoint = arcPoint
+            )
         }
 
         targetCollector.addPolygon(
@@ -291,6 +391,18 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
 
         val innerStrokeStartPoint = innerArcPointWithStroke(startAngle)
         val innerStrokeEndPoint = innerArcPointWithStroke(endAngle - fullCircleDrawingFix)
+
+        fun endAngleForDrawing(): Double {
+            return endAngle - fullCircleDrawingFix
+        }
+
+        fun outerArcPoint(angle: Double): DoubleVector {
+            return arcPoint(radius, angle)
+        }
+
+        fun innerArcPoint(angle: Double): DoubleVector {
+            return arcPoint(holeRadius, angle)
+        }
 
         fun outerArcPointWithStroke(angle: Double) = arcPoint(
             radius = when (strokeSide.hasOuter && hasVisibleStroke) {

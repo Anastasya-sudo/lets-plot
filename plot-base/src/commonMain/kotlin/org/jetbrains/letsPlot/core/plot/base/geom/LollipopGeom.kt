@@ -8,9 +8,13 @@ package org.jetbrains.letsPlot.core.plot.base.geom
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.interval.DoubleSpan
 import org.jetbrains.letsPlot.commons.values.Color
+import org.jetbrains.letsPlot.commons.values.Colors
+import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
+import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil
 import org.jetbrains.letsPlot.core.plot.base.geom.legend.LollipopLegendKeyElementFactory
+import org.jetbrains.letsPlot.core.plot.base.geom.util.approximateArc
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomHelper
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil.toLocation
 import org.jetbrains.letsPlot.core.plot.base.geom.util.HintColorUtil
@@ -18,10 +22,18 @@ import org.jetbrains.letsPlot.core.plot.base.render.LegendKeyElementFactory
 import org.jetbrains.letsPlot.core.plot.base.render.SvgRoot
 import org.jetbrains.letsPlot.core.plot.base.render.point.NamedShape
 import org.jetbrains.letsPlot.core.plot.base.render.point.PointShapeSvg
+import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
+import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
+import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgGElement
+import org.jetbrains.letsPlot.datamodel.svg.dom.SvgLineElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgNode
+import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathDataBuilder
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 class LollipopGeom : GeomBase(), WithWidth, WithHeight {
@@ -151,8 +163,12 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
         fun createCandy(helper: GeomHelper): SvgGElement {
             val location = helper.toClient(head, point)!!
             val shape = point.shape()!!
-            val o = PointShapeSvg.create(shape, location, point, fatten)
-            return wrap(o)
+            if (FeatureSwitch.XKCD_STYLE_ENABLED && shape is NamedShape && shape.isCircleCandyShape()) {
+                return createXkcdCircleCandy(shape, location)
+            } else {
+                val o = PointShapeSvg.create(shape, location, point, fatten)
+                return wrap(o)
+            }
         }
 
         fun createStick(helper: GeomHelper): SvgNode? {
@@ -163,9 +179,15 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
                 return null
             }
             val neck = shiftHeadToBase(clientBase, clientHead, candyRadius) // meeting point of candy and stick
-            val svgElementHelper = GeomHelper.SvgElementHelper()
-                .setStrokeAlphaEnabled(true)
-            return svgElementHelper.createLine(clientBase, neck, point, strokeScaler = AesScaling::lineWidth)?.first
+            if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                val svgElementHelper = GeomHelper.SvgElementHelper()
+                    .setStrokeAlphaEnabled(true)
+                return svgElementHelper.createLine(clientBase, neck, point, strokeScaler = AesScaling::lineWidth)?.first
+            } else {
+                val line = SvgLineElement(clientBase.x, clientBase.y, neck.x, neck.y)
+                GeomHelper.decorate(line, point, applyAlphaToAll = true, strokeScaler = AesScaling::lineWidth)
+                return line
+            }
         }
 
         private fun shiftHeadToBase(
@@ -191,6 +213,78 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
             val y = (x - x1) * (y0 - y1) / (x0 - x1) + y1
 
             return DoubleVector(x, y)
+        }
+
+        private fun createXkcdCircleCandy(shape: NamedShape, center: DoubleVector): SvgGElement {
+            val radius = shape.size(point, fatten) / 2.0
+            if (!radius.isFinite() || radius <= 0.0) {
+                val o = PointShapeSvg.create(shape, center, point, fatten)
+                return wrap(o)
+            }
+
+            val circlePath = approximateCircle(center, radius)
+            val handDrawn = XkcdPathEffect.toHandDrawn(circlePath)
+
+            val path = LinePath(
+                SvgPathDataBuilder().apply {
+                    lineString(handDrawn)
+                    closePath()
+                }
+            )
+
+            val fill = AestheticsUtil.fill(shape.isFilled, shape.isSolid, point)
+            val fillAlpha = if (shape.isFilled || shape.isSolid) {
+                AestheticsUtil.alpha(fill, point)
+            } else {
+                0.0
+            }
+            path.fill().set(Colors.withOpacity(fill, fillAlpha))
+
+            val stroke = point.color()!!
+            val strokeWidth = shape.strokeWidth(point)
+            val strokeAlpha = if (strokeWidth > 0.0) {
+                AestheticsUtil.alpha(stroke, point)
+            } else {
+                0.0
+            }
+            path.color().set(Colors.withOpacity(stroke, strokeAlpha))
+            path.width().set(strokeWidth)
+
+            return path.rootGroup
+        }
+
+        private fun approximateCircle(center: DoubleVector, radius: Double): List<DoubleVector> {
+            val arcPoint = { angle: Double ->
+                center.add(DoubleVector(radius * cos(angle), radius * sin(angle)))
+            }
+
+            val right = arcPoint(0.0)
+            val left = arcPoint(PI)
+
+            val upperArc = approximateArc(
+                startPoint = right,
+                endPoint = left,
+                startAngle = 0.0,
+                endAngle = PI,
+                arcPoint = arcPoint
+            )
+            val lowerArc = approximateArc(
+                startPoint = left,
+                endPoint = right,
+                startAngle = PI,
+                endAngle = 2.0 * PI,
+                arcPoint = arcPoint
+            )
+
+            return upperArc + lowerArc.drop(1)
+        }
+
+        private fun NamedShape.isCircleCandyShape(): Boolean {
+            return this == NamedShape.STICK_CIRCLE
+                    || this == NamedShape.SOLID_CIRCLE
+                    || this == NamedShape.SOLID_CIRCLE_2
+                    || this == NamedShape.BULLET
+                    || this == NamedShape.FILLED_CIRCLE
         }
     }
 

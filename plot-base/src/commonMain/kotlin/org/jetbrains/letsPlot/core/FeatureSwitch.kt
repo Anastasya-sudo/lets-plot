@@ -11,4 +11,7 @@ object FeatureSwitch {
 
     const val PLOT_DEBUG_DRAWING = false
     const val LEGEND_DEBUG_DRAWING = false
+
+    // Temporary switch for xkcd-style.
+    const val XKCD_STYLE_ENABLED = true
 }
