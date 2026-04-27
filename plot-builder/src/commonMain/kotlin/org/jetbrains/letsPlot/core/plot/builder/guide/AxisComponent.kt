@@ -253,7 +253,7 @@ class AxisComponent(
     }
 
     companion object {
-        private const val XKCD_AXIS_WIDTH_MULTIPLIER = 1.3
-        private const val XKCD_TICK_WIDTH_MULTIPLIER = 1.2
+        private const val XKCD_AXIS_WIDTH_MULTIPLIER = 3
+        private const val XKCD_TICK_WIDTH_MULTIPLIER = 3
     }
 }

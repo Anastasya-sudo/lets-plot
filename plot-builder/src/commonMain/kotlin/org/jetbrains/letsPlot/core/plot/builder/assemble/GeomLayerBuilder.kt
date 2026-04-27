@@ -7,6 +7,7 @@ package org.jetbrains.letsPlot.core.plot.builder.assemble
 
 import org.jetbrains.letsPlot.commons.interval.DoubleSpan
 import org.jetbrains.letsPlot.commons.values.Color
+import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.commons.typedKey.TypedKeyHashMap
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsDefaults
@@ -293,18 +294,50 @@ class GeomLayerBuilder(
         )
         override val geomKind: GeomKind = geomProvider.geomKind
         override val aestheticsDefaults: AestheticsDefaults =
-            AestheticsDefaults.create(geomKind, geomTheme).let { aestheticsDefaults ->
-                // Default y must be NaN or 0 depending on the orientation to avoid drawing the midline/midpoint when it is not specified
-                if (isYOrientation && geomKind in listOf(GeomKind.CROSS_BAR, GeomKind.POINT_RANGE)) {
-                    val defaultX = aestheticsDefaults.defaultValue(Aes.X)
-                    val defaultY = aestheticsDefaults.defaultValue(Aes.Y)
-                    aestheticsDefaults
-                        .with(Aes.Y, defaultX)
-                        .with(Aes.X, defaultY)
-                } else {
-                    aestheticsDefaults
+            if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                AestheticsDefaults.create(geomKind, geomTheme).let { aestheticsDefaults ->
+                    val defaults = if (isYOrientation && geomKind in listOf(GeomKind.CROSS_BAR, GeomKind.POINT_RANGE)) {
+                        val defaultX = aestheticsDefaults.defaultValue(Aes.X)
+                        val defaultY = aestheticsDefaults.defaultValue(Aes.Y)
+                        aestheticsDefaults
+                            .with(Aes.Y, defaultX)
+                            .with(Aes.X, defaultY)
+                    } else {
+                        aestheticsDefaults
+                    }
+
+                    if (geomKind in XKCD_TEXT_GEOMS) {
+                        defaults.with(Aes.FAMILY, XKCD_TEXT_FAMILY)
+                    } else {
+                        defaults
+                    }
+                }
+            } else {
+                AestheticsDefaults.create(geomKind, geomTheme).let { aestheticsDefaults ->
+                    // Default y must be NaN or 0 depending on the orientation to avoid drawing the midline/midpoint when it is not specified
+                    if (isYOrientation && geomKind in listOf(GeomKind.CROSS_BAR, GeomKind.POINT_RANGE)) {
+                        val defaultX = aestheticsDefaults.defaultValue(Aes.X)
+                        val defaultY = aestheticsDefaults.defaultValue(Aes.Y)
+                        aestheticsDefaults
+                            .with(Aes.Y, defaultX)
+                            .with(Aes.X, defaultY)
+                    } else {
+                        aestheticsDefaults
+                    }
                 }
             }
+
+        companion object {
+            private const val XKCD_TEXT_FAMILY = "Humor Sans"
+            private val XKCD_TEXT_GEOMS = setOf(
+                GeomKind.TEXT,
+                GeomKind.LABEL,
+                GeomKind.TEXT_REPEL,
+                GeomKind.LABEL_REPEL,
+                GeomKind.BRACKET,
+                GeomKind.BRACKET_DODGE
+            )
+        }
 
         private val myRenderedAes: List<Aes<*>> = GeomMeta.renders(
             geomProvider.geomKind,
