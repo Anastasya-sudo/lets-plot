@@ -8,11 +8,13 @@ package org.jetbrains.letsPlot.core.plot.builder.guide
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.intern.math.toDegrees
 import org.jetbrains.letsPlot.commons.values.Color
+import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.render.svg.Label
 import org.jetbrains.letsPlot.core.plot.base.render.svg.StrokeDashArraySupport
 import org.jetbrains.letsPlot.core.plot.base.render.svg.SvgComponent
 import org.jetbrains.letsPlot.core.plot.base.render.svg.Text.HorizontalAnchor
 import org.jetbrains.letsPlot.core.plot.base.render.svg.Text.VerticalAnchor
+import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.core.plot.base.theme.AxisTheme
 import org.jetbrains.letsPlot.core.plot.builder.AxisUtil
@@ -60,26 +62,50 @@ class PolarAxisComponent(
         if (!hideAxisBreaks && axisTheme.showLine()) {
             if (orientation.isHorizontal) {
                 val axisLine = SvgPathElement().apply {
+                    val axisPoints = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                        XkcdPathEffect.toHandDrawn(breaksData.axisLine)
+                    } else {
+                        breaksData.axisLine
+                    }
+                    val axisWidth = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                        axisTheme.lineWidth() * XKCD_AXIS_WIDTH_MULTIPLIER
+                    } else {
+                        axisTheme.lineWidth()
+                    }
+
                     d().set(
                         SvgPathDataBuilder()
-                            .lineString(breaksData.axisLine)
+                            .lineString(axisPoints)
                             .build()
                     )
-                    strokeWidth().set(axisTheme.lineWidth())
+                    strokeWidth().set(axisWidth)
                     strokeColor().set(axisTheme.lineColor())
-                    StrokeDashArraySupport.apply(this, axisTheme.lineWidth(), axisTheme.lineType())
+                    StrokeDashArraySupport.apply(this, axisWidth, axisTheme.lineType())
                     fillColor().set(Color.TRANSPARENT)
                 }
                 rootElement.children().add(axisLine)
             } else {
-                val axisLine = SvgLineElement().apply {
+                val axisLine: SvgNode = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                    val start = breaksData.axisLine[0]
+                    val end = breaksData.axisLine[1]
+                    val handDrawn = XkcdPathEffect.toHandDrawn(listOf(start, end))
+                    SvgPathElement().apply {
+                        d().set(SvgPathDataBuilder().lineString(handDrawn).build())
+                        strokeWidth().set(axisTheme.lineWidth() * XKCD_AXIS_WIDTH_MULTIPLIER)
+                        strokeColor().set(axisTheme.lineColor())
+                        StrokeDashArraySupport.apply(this, axisTheme.lineWidth() * XKCD_AXIS_WIDTH_MULTIPLIER, axisTheme.lineType())
+                        fillColor().set(Color.TRANSPARENT)
+                    }
+                } else {
+                    SvgLineElement().apply {
 //                    y1().set(breaksData.center.y)
 //                    y2().set(breaksData.center.y - length / 2.0)
-                    y1().set(breaksData.axisLine[0].y)
-                    y2().set(breaksData.axisLine[1].y)
-                    strokeWidth().set(axisTheme.lineWidth())
-                    strokeColor().set(axisTheme.lineColor())
-                    StrokeDashArraySupport.apply(this, axisTheme.lineWidth(), axisTheme.lineType())
+                        y1().set(breaksData.axisLine[0].y)
+                        y2().set(breaksData.axisLine[1].y)
+                        strokeWidth().set(axisTheme.lineWidth())
+                        strokeColor().set(axisTheme.lineColor())
+                        StrokeDashArraySupport.apply(this, axisTheme.lineWidth(), axisTheme.lineType())
+                    }
                 }
                 rootElement.children().add(axisLine)
             }
@@ -92,36 +118,60 @@ class PolarAxisComponent(
         axisTheme: AxisTheme,
         breakCoord: DoubleVector,
         center: DoubleVector
-    ): Pair<Label?, SvgLineElement?> {
+    ): Pair<Label?, SvgNode?> {
 
-        val tickMark: SvgLineElement? = if (axisTheme.showTickMarks()) {
-            val tickMark = SvgLineElement()
-            tickMark.strokeWidth().set(axisTheme.tickMarkWidth())
-            tickMark.strokeColor().set(axisTheme.tickMarkColor())
-            StrokeDashArraySupport.apply(tickMark, axisTheme.tickMarkWidth(), axisTheme.tickMarkLineType())
-            val markLength = axisTheme.tickMarkLength()
+        val tickMark: SvgNode? = if (axisTheme.showTickMarks()) {
+            if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                val markLength = axisTheme.tickMarkLength()
+                val (start, end) = when (orientation) {
+                    Orientation.LEFT -> DoubleVector(0.0, breakCoord.y) to DoubleVector(-markLength, breakCoord.y)
 
-            when (orientation) {
-                Orientation.LEFT -> {
-                    tickMark.x2().set(-markLength)
-                    tickMark.y2().set(0.0)
+                    Orientation.BOTTOM -> {
+                        val tickMarkVector = breakCoord.mul(1 + markLength / breakCoord.length())
+                        breakCoord.add(center) to tickMarkVector.add(center)
+                    }
 
-                    SvgUtils.transformTranslate(tickMark, 0.0, breakCoord.y)
+                    Orientation.RIGHT -> error("Unsupported orientation $orientation")
+                    Orientation.TOP -> error("Unsupported orientation $orientation")
                 }
 
-                Orientation.BOTTOM -> {
-                    val tickMarkVector = breakCoord.mul(1 + markLength / breakCoord.length())
-                    tickMark.x2().set(tickMarkVector.add(center).x)
-                    tickMark.y2().set(tickMarkVector.add(center).y)
-
-                    tickMark.x1().set(breakCoord.add(center).x)
-                    tickMark.y1().set(breakCoord.add(center).y)
+                val handDrawn = XkcdPathEffect.toHandDrawn(listOf(start, end))
+                SvgPathElement().apply {
+                    d().set(SvgPathDataBuilder().lineString(handDrawn).build())
+                    strokeWidth().set(axisTheme.tickMarkWidth() * XKCD_TICK_WIDTH_MULTIPLIER)
+                    strokeColor().set(axisTheme.tickMarkColor())
+                    StrokeDashArraySupport.apply(this, axisTheme.tickMarkWidth() * XKCD_TICK_WIDTH_MULTIPLIER, axisTheme.tickMarkLineType())
+                    fillColor().set(Color.TRANSPARENT)
                 }
+            } else {
+                val tickMark = SvgLineElement()
+                tickMark.strokeWidth().set(axisTheme.tickMarkWidth())
+                tickMark.strokeColor().set(axisTheme.tickMarkColor())
+                StrokeDashArraySupport.apply(tickMark, axisTheme.tickMarkWidth(), axisTheme.tickMarkLineType())
+                val markLength = axisTheme.tickMarkLength()
 
-                Orientation.RIGHT -> error("Unsupported orientation $orientation")
-                Orientation.TOP -> error("Unsupported orientation $orientation")
+                when (orientation) {
+                    Orientation.LEFT -> {
+                        tickMark.x2().set(-markLength)
+                        tickMark.y2().set(0.0)
+
+                        SvgUtils.transformTranslate(tickMark, 0.0, breakCoord.y)
+                    }
+
+                    Orientation.BOTTOM -> {
+                        val tickMarkVector = breakCoord.mul(1 + markLength / breakCoord.length())
+                        tickMark.x2().set(tickMarkVector.add(center).x)
+                        tickMark.y2().set(tickMarkVector.add(center).y)
+
+                        tickMark.x1().set(breakCoord.add(center).x)
+                        tickMark.y1().set(breakCoord.add(center).y)
+                    }
+
+                    Orientation.RIGHT -> error("Unsupported orientation $orientation")
+                    Orientation.TOP -> error("Unsupported orientation $orientation")
+                }
+                tickMark
             }
-            tickMark
         } else {
             null
         }
@@ -171,6 +221,11 @@ class PolarAxisComponent(
         }
 
         return tickLabel to tickMark
+    }
+
+    companion object {
+        private const val XKCD_AXIS_WIDTH_MULTIPLIER = 1.3
+        private const val XKCD_TICK_WIDTH_MULTIPLIER = 1.2
     }
 
 }
