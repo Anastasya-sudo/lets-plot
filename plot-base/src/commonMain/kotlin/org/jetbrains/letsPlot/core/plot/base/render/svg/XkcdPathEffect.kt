@@ -6,6 +6,7 @@
 package org.jetbrains.letsPlot.core.plot.base.render.svg
 
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
+import kotlin.math.ceil
 import kotlin.math.sqrt
 import kotlin.random.Random
 
@@ -34,8 +35,10 @@ object XkcdPathEffect {
             val normalY = dx / length
             val amplitude = (length * JITTER_RELATIVE).coerceIn(MIN_JITTER_PX, MAX_JITTER_PX)
 
-            for (pointIndex in 1..SUBDIVISIONS) {
-                val t = pointIndex.toDouble() / (SUBDIVISIONS + 1.0)
+            val subdivisions = maxOf(0, ceil(length / TARGET_WAVE_STEP_PX).toInt() - 1)
+
+            for (pointIndex in 1..subdivisions) {
+                val t = pointIndex.toDouble() / (subdivisions + 1.0)
                 val middle = DoubleVector(start.x + dx * t, start.y + dy * t)
                 val offset = randomOffset(seedFor(start, end, i, pointIndex), amplitude)
                 result.add(DoubleVector(middle.x + normalX * offset, middle.y + normalY * offset))
@@ -66,7 +69,7 @@ object XkcdPathEffect {
         return (seed xor value) * 1099511628211L
     }
 
-    private const val SUBDIVISIONS = 3
+    private const val TARGET_WAVE_STEP_PX = 30.0
     private const val JITTER_RELATIVE = 0.2
     private const val MIN_JITTER_PX = 1.1
     private const val MAX_JITTER_PX = 3.4

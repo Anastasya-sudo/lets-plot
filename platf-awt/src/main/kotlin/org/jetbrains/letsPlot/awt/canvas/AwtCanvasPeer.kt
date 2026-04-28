@@ -18,6 +18,10 @@ class AwtCanvasPeer(
     val fontManager: FontManager,
     private val pixelDensity: Double = 1.0,
 ) : CanvasPeer {
+    init {
+        BundledFonts.ensureRegistered()
+    }
+
     override fun createCanvas(size: Vector): AwtCanvas {
         return AwtCanvas.create(size, pixelDensity, fontManager)
     }

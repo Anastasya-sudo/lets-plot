@@ -11,6 +11,7 @@ import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.geometry.Vector
 import org.jetbrains.letsPlot.commons.registration.CompositeRegistration
 import org.jetbrains.letsPlot.commons.registration.Registration
+import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.interact.event.ToolEventDispatcher
 import org.jetbrains.letsPlot.core.platf.dom.DomMouseEventMapper
 import org.jetbrains.letsPlot.core.plot.builder.GeomLayer
@@ -51,6 +52,9 @@ internal class FigureToHtml(
 //    }
 
     fun eval(isRoot: Boolean): Result {
+        if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+            XkcdFontFace.ensureInjected()
+        }
 
         val buildInfo = buildInfo.layoutedByOuterSize()
 //        containerElement.style.apply {

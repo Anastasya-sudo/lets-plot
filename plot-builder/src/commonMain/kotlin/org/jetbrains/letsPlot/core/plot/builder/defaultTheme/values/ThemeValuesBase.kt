@@ -6,6 +6,7 @@
 package org.jetbrains.letsPlot.core.plot.builder.defaultTheme.values
 
 import org.jetbrains.letsPlot.commons.values.FontFace
+import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.guide.*
 import org.jetbrains.letsPlot.core.plot.base.render.linetype.NamedLineType
 import org.jetbrains.letsPlot.core.plot.base.theme.TagLocation
@@ -68,6 +69,26 @@ import org.jetbrains.letsPlot.core.plot.builder.presentation.Defaults
 internal open class ThemeValuesBase : ThemeValues(VALUES) {
 
     companion object {
+        private val DEFAULT_TEXT_FAMILY = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+            "Humor Sans"
+        } else {
+            Defaults.FONT_FAMILY_NORMAL
+        }
+        private val DEFAULT_AXIS_TICKS_LENGTH = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+            15.0
+        } else {
+            4.0
+        }
+        private val DEFAULT_AXIS_TEXT_SIZE = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+            20.0
+        } else {
+            Defaults.FONT_SMALL
+        }
+        private val DEFAULT_PLOT_TITLE_SIZE = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+            24.0
+        } else {
+            Defaults.FONT_LARGE
+        }
 
         private val VALUES: Map<String, Any> = mapOf(
             LINE to mapOf(
@@ -84,7 +105,7 @@ internal open class ThemeValuesBase : ThemeValues(VALUES) {
             TEXT to mapOf(
                 Elem.SIZE to Defaults.FONT_SMALL,
                 Elem.FONT_FACE to FontFace.NORMAL,
-                Elem.FONT_FAMILY to Defaults.FONT_FAMILY_NORMAL,
+                Elem.FONT_FAMILY to DEFAULT_TEXT_FAMILY,
 //                Elem.FONT_MONOSPACED to Defaults.FONT_FAMILY_NORMAL.monospaced,
                 Elem.HJUST to 0.0,
                 Elem.VJUST to 0.5,
@@ -99,7 +120,7 @@ internal open class ThemeValuesBase : ThemeValues(VALUES) {
                 Elem.Margin.LEFT to 0.0
             ),
             PLOT_TITLE to mapOf(
-                Elem.SIZE to Defaults.FONT_LARGE
+                Elem.SIZE to DEFAULT_PLOT_TITLE_SIZE
             ),
             PLOT_SUBTITLE to mapOf(
                 Elem.SIZE to Defaults.FONT_MEDIUM,
@@ -125,11 +146,12 @@ internal open class ThemeValuesBase : ThemeValues(VALUES) {
             ),
 
             AXIS_ONTOP to true,
-            AXIS_TICKS_LENGTH to 4.0,
+            AXIS_TICKS_LENGTH to DEFAULT_AXIS_TICKS_LENGTH,
             AXIS_MINOR_TICKS_LENGTH to 2.0,
             AXIS_MINOR_TICKS to ELEMENT_BLANK,
 
             AXIS_TEXT to mapOf(
+                Elem.SIZE to DEFAULT_AXIS_TEXT_SIZE,
                 Elem.Margin.TOP to 0.0,
                 Elem.Margin.RIGHT to 0.0,
                 Elem.Margin.BOTTOM to 0.0,
