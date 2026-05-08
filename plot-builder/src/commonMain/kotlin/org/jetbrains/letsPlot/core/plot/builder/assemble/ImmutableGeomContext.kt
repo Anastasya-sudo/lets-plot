@@ -19,6 +19,8 @@ interface ImmutableGeomContext : GeomContext {
     interface Builder {
         fun flipped(flipped: Boolean): Builder
 
+        fun xkcdStyle(isXkcdStyle: Boolean): Builder
+
         fun aesthetics(aesthetics: Aesthetics): Builder
 
         fun aestheticMappers(aestheticMappers: Map<Aes<*>, ScaleMapper<*>>): Builder

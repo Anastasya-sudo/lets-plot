@@ -13,6 +13,9 @@ interface Theme {
 
     val exponentFormat: ExponentFormat
 
+    val isXkcdStyle: Boolean
+        get() = false
+
     fun horizontalAxis(flipAxis: Boolean): AxisTheme
 
     fun verticalAxis(flipAxis: Boolean): AxisTheme

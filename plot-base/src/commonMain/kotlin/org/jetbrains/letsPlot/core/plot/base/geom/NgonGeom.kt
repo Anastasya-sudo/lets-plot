@@ -71,7 +71,7 @@ class NgonGeom : GeomBase() {
 
             val polygonPoints = polygon(clientCenter, radius, sideCount)
 
-            val path = LinePath.polygon(polygonPoints)
+            val path = LinePath.polygon(polygonPoints, isXkcdStyle = ctx.isXkcdStyle)
             linesHelper.decorate(path, p, filled = true) {
                 AesScaling.strokeWidth(it, DataPointAesthetics::stroke)
             }

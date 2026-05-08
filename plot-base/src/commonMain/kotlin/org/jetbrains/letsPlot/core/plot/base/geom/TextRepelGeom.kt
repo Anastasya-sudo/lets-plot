@@ -56,7 +56,7 @@ open class TextRepelGeom: TextGeom() {
         }
 
         val textHelper = getTextHelper(aesthetics, pos, coord, ctx)
-        val svgHelper = GeomHelper.SvgElementHelper(::toClient)
+        val svgHelper = GeomHelper.SvgElementHelper(::toClient, isXkcdStyle = ctx.isXkcdStyle)
             .setStrokeAlphaEnabled(true)
             .setArrowSpec(arrowSpec)
         val targetCollector = getGeomTargetCollector(ctx)

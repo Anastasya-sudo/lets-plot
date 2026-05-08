@@ -101,7 +101,8 @@ def theme(*,
 
           label_text=None,
 
-          geom=None
+          geom=None,
+          style=None
           ):
     """
     Use ``theme()`` to modify individual components of a theme,
@@ -416,6 +417,10 @@ def theme(*,
     geom : dict
         Color settings for geometries.
         Set `element_geom() <https://lets-plot.org/python/pages/api/lets_plot.element_geom.html>`__ to specify new values for the named colors.
+    style : {'none', 'xkcd'} or dict
+        Built-in rendering style mode.
+        Set ``'xkcd'`` to enable hand-drawn style rendering, or ``'none'`` for standard rendering.
+        A dict form is also supported for forward compatibility, for example: ``{'name': 'xkcd'}``.
 
     Returns
     -------
@@ -473,8 +478,31 @@ def theme(*,
 
     """
 
+    _validate_style(style)
     filtered = _filter_none(locals())
     return FeatureSpec('theme', name=None, **filtered)
+
+
+def _validate_style(style):
+    if style is None:
+        return
+
+    if isinstance(style, str):
+        style_name = style
+    elif isinstance(style, dict):
+        style_name = style.get('name')
+        if not isinstance(style_name, str):
+            raise ValueError("Style dict must contain a string field 'name'.")
+    else:
+        raise ValueError(
+            f"Unknown style type: {type(style)!r}. Expected a string or dict."
+        )
+
+    supported_styles = {'none', 'xkcd'}
+    if style_name.lower() not in supported_styles:
+        raise ValueError(
+            f"Unknown style: {style!r}. Supported values are: {sorted(supported_styles)}."
+        )
 
 
 def _filter_none(original: dict) -> dict:

@@ -19,6 +19,7 @@ import org.jetbrains.letsPlot.core.plot.builder.presentation.PlotLabelSpec
 
 class GeomContextBuilder : ImmutableGeomContext.Builder {
     private var flipped: Boolean = false
+    private var isXkcdStyle: Boolean = false
     private var aesthetics: Aesthetics? = null
     private var aestheticMappers: Map<Aes<*>, ScaleMapper<*>>? = null
     private var aesBounds: DoubleRectangle? = null
@@ -37,6 +38,7 @@ class GeomContextBuilder : ImmutableGeomContext.Builder {
 
     private constructor(ctx: MyGeomContext) {
         flipped = ctx.flipped
+        isXkcdStyle = ctx.isXkcdStyle
         aesthetics = ctx.aesthetics
         aestheticMappers = ctx.aestheticMappers
         aesBounds = ctx._aesBounds
@@ -50,6 +52,11 @@ class GeomContextBuilder : ImmutableGeomContext.Builder {
 
     override fun flipped(flipped: Boolean): ImmutableGeomContext.Builder {
         this.flipped = flipped
+        return this
+    }
+
+    override fun xkcdStyle(isXkcdStyle: Boolean): ImmutableGeomContext.Builder {
+        this.isXkcdStyle = isXkcdStyle
         return this
     }
 
@@ -134,6 +141,7 @@ class GeomContextBuilder : ImmutableGeomContext.Builder {
         val _messageConsumer = b.messageConsumer
 
         override val flipped: Boolean = b.flipped
+        override val isXkcdStyle: Boolean = b.isXkcdStyle
         override val targetCollector = b.geomTargetCollector
         override val annotation = b.annotation
         override val backgroundColor = b.backgroundColor

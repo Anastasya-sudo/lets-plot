@@ -176,7 +176,8 @@ internal object PlotGeomTilesUtil {
             geomProvider = geomProvider,
             stat = stat,
             posProvider = layerConfig.posProvider,
-            fontFamilyRegistry = fontFamilyRegistry
+            fontFamilyRegistry = fontFamilyRegistry,
+            isXkcdStyle = theme.isXkcdStyle,
         )
             .yOrientation(layerConfig.isYOrientation)
             .marginal(layerConfig.isMarginal, layerConfig.marginalSide, layerConfig.marginalSize)

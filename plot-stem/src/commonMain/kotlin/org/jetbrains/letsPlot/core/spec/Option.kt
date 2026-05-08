@@ -1030,6 +1030,7 @@ object Option {
 
         const val GEOM = ThemeOption.GEOM
         const val FLAVOR = ThemeOption.FLAVOR
+        const val STYLE = ThemeOption.STYLE
 
         // view element
         const val ELEMENT_BLANK = ThemeOption.ELEMENT_BLANK_SHORTHAND

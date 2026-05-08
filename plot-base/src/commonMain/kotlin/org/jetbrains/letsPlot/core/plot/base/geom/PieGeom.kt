@@ -10,7 +10,6 @@ import org.jetbrains.letsPlot.commons.intern.math.toRadians
 import org.jetbrains.letsPlot.commons.interval.DoubleSpan
 import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.commons.values.Colors
-import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
 import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil
@@ -41,6 +40,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
     var sizeUnit: String? = null
     var start: Double? = null
     var clockwise: Boolean = true
+    private var isXkcdStyle: Boolean = false
 
     enum class StrokeSide {
         OUTER, INNER, BOTH;
@@ -62,6 +62,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
         coord: CoordinateSystem,
         ctx: GeomContext
     ) {
+        isXkcdStyle = ctx.isXkcdStyle
         val geomHelper = GeomHelper(pos, coord, ctx)
         GeomUtil.withDefined(aesthetics.dataPoints(), Aes.X, Aes.Y, Aes.SLICE)
             .groupBy { p -> DoubleVector(p.x()!!, p.y()!!) }
@@ -112,7 +113,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
     }
 
     private fun buildSvgSector(sector: Sector): LinePath {
-        val svgPath = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+        val svgPath = if (isXkcdStyle) {
             buildXkcdSvgSector(sector)
         } else {
             LinePath(
@@ -134,7 +135,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
     }
 
     private fun buildSvgArcs(sector: Sector): LinePath {
-        val svgPath = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+        val svgPath = if (isXkcdStyle) {
             buildXkcdSvgArcs(sector)
         } else {
             LinePath(
@@ -161,7 +162,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
         fun svgSpacerLines(sector: Sector, atStart: Boolean, atEnd: Boolean): LinePath {
             return LinePath(
                 SvgPathDataBuilder().apply {
-                    if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                    if (isXkcdStyle) {
                         if (atStart) {
                             addHandDrawnLine(sector.innerStrokeStartPoint, sector.outerStrokeStartPoint)
                         }

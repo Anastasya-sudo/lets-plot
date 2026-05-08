@@ -22,6 +22,7 @@ class ThemeOptions : Options() {
     var axisTooltip: Element? by map(ThemeOption.AXIS_TOOLTIP)
     var labelText: Element? by map(ThemeOption.ANNOTATION_TEXT)
     var flavor: Flavor? by map(ThemeOption.FLAVOR)
+    var style: String? by map(ThemeOption.STYLE)
 
     enum class ThemeName(val value: String) {
         GREY(ThemeOption.Name.R_GREY),

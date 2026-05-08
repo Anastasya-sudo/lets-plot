@@ -199,6 +199,7 @@ internal abstract class FrameOfReferenceBase(
 
             val ctx = GeomContextBuilder()
                 .flipped(flippedAxis)
+                .xkcdStyle(layer.isXkcdStyle)
                 .aesthetics(aesthetics)
                 .aestheticMappers(aestheticMappers)
                 .aesBounds(xyAesBounds)
