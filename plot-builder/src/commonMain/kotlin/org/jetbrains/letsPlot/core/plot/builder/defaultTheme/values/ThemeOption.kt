@@ -147,6 +147,7 @@ object ThemeOption {
 
     const val GEOM = "geom"
     const val FLAVOR = "flavor"
+    const val STYLE = "style"
 
 
     // view element
@@ -210,6 +211,12 @@ object ThemeOption {
         const val HIGH_CONTRAST_LIGHT = "high_contrast_light"
         const val HIGH_CONTRAST_DARK = "high_contrast_dark"
         const val STANDARD= "standard"
+    }
+
+    object Style {
+        const val NAME = "name"
+        const val NONE = "none"
+        const val XKCD = "xkcd"
     }
 
     object Geom {

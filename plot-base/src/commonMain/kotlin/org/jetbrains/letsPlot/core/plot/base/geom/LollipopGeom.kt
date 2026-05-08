@@ -9,7 +9,6 @@ import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.interval.DoubleSpan
 import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.commons.values.Colors
-import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
 import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil
@@ -41,6 +40,7 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
     var slope: Double = DEF_SLOPE
     var intercept: Double = DEF_INTERCEPT
     var direction: Direction = DEF_DIRECTION
+    private var isXkcdStyle: Boolean = false
 
     override val legendKeyElementFactory: LegendKeyElementFactory
         get() = LollipopLegendKeyElementFactory()
@@ -60,6 +60,7 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
         coord: CoordinateSystem,
         ctx: GeomContext
     ) {
+        isXkcdStyle = ctx.isXkcdStyle
         val helper = GeomHelper(pos, coord, ctx)
         val targetCollector = getGeomTargetCollector(ctx)
         val colorsByDataPoint = HintColorUtil.createColorMarkerMapper(GeomKind.LOLLIPOP, ctx)
@@ -163,7 +164,7 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
         fun createCandy(helper: GeomHelper): SvgGElement {
             val location = helper.toClient(head, point)!!
             val shape = point.shape()!!
-            if (FeatureSwitch.XKCD_STYLE_ENABLED && shape is NamedShape && shape.isCircleCandyShape()) {
+            if (isXkcdStyle && shape is NamedShape && shape.isCircleCandyShape()) {
                 return createXkcdCircleCandy(shape, location)
             } else {
                 val o = PointShapeSvg.create(shape, location, point, fatten)
@@ -179,8 +180,8 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
                 return null
             }
             val neck = shiftHeadToBase(clientBase, clientHead, candyRadius) // meeting point of candy and stick
-            if (FeatureSwitch.XKCD_STYLE_ENABLED) {
-                val svgElementHelper = GeomHelper.SvgElementHelper()
+            if (isXkcdStyle) {
+                val svgElementHelper = GeomHelper.SvgElementHelper(isXkcdStyle = true)
                     .setStrokeAlphaEnabled(true)
                 return svgElementHelper.createLine(clientBase, neck, point, strokeScaler = AesScaling::lineWidth)?.first
             } else {

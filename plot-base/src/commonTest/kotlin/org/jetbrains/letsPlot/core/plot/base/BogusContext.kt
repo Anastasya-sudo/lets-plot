@@ -12,6 +12,8 @@ import org.jetbrains.letsPlot.core.plot.base.geom.annotation.Annotation
 import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 
 object BogusContext : GeomContext {
+    override val isXkcdStyle: Boolean
+        get() = false
     override val flipped: Boolean
         get() = error("Not available in a bogus geom context")
     override val targetCollector: GeomTargetCollector

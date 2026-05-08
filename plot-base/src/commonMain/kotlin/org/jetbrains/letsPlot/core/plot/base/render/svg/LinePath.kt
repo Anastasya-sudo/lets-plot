@@ -8,7 +8,6 @@ package org.jetbrains.letsPlot.core.plot.base.render.svg
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.intern.observable.property.WritableProperty
 import org.jetbrains.letsPlot.commons.values.Color
-import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.render.linetype.LineType
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgColors
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathDataBuilder
@@ -102,25 +101,27 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
     companion object {
         val END_OF_SUBPATH: DoubleVector? = null  // End of Sub Path
 
-        fun line(points: Iterable<DoubleVector>): LinePath {
+        fun line(points: Iterable<DoubleVector>, isXkcdStyle: Boolean = false): LinePath {
             return LinePath(
                 pathBuilder(
                     points,
-                    false
+                    false,
+                    isXkcdStyle
                 )
             )
         }
 
-        fun polygon(points: Iterable<DoubleVector?>): LinePath {
+        fun polygon(points: Iterable<DoubleVector?>, isXkcdStyle: Boolean = false): LinePath {
             return LinePath(
                 pathBuilder(
                     points,
-                    true
+                    true,
+                    isXkcdStyle
                 )
             )
         }
 
-        private fun pathBuilder(points: Iterable<DoubleVector?>, isPolygon: Boolean): SvgPathDataBuilder {
+        private fun pathBuilder(points: Iterable<DoubleVector?>, isPolygon: Boolean, isXkcdStyle: Boolean): SvgPathDataBuilder {
             val builder = SvgPathDataBuilder(true)
 
             var curSegment: MutableList<DoubleVector> = ArrayList()
@@ -130,7 +131,8 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
                     buildSegment(
                         builder,
                         curSegment,
-                        interpolate
+                        interpolate,
+                        isXkcdStyle
                     )
                     if (isPolygon) {
                         builder.closePath()
@@ -143,7 +145,8 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
             buildSegment(
                 builder,
                 curSegment,
-                interpolate
+                interpolate,
+                isXkcdStyle
             )
             if (isPolygon) {
                 builder.closePath()
@@ -152,11 +155,16 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
             return builder
         }
 
-        private fun buildSegment(builder: SvgPathDataBuilder, curSegment: List<DoubleVector>, interpolate: Boolean) {
+        private fun buildSegment(
+            builder: SvgPathDataBuilder,
+            curSegment: List<DoubleVector>,
+            interpolate: Boolean,
+            isXkcdStyle: Boolean
+        ) {
             if (curSegment.isEmpty()) {
                 return
             }
-            if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+            if (isXkcdStyle) {
                 val handDrawn = XkcdPathEffect.toHandDrawn(curSegment)
                 builder.moveTo(handDrawn[0])
                 builder.interpolatePoints(

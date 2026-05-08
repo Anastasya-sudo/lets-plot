@@ -14,7 +14,6 @@ import org.jetbrains.letsPlot.commons.intern.util.ArrowSupport
 import org.jetbrains.letsPlot.commons.intern.util.curve
 import org.jetbrains.letsPlot.commons.intern.util.padLineString
 import org.jetbrains.letsPlot.commons.values.Color
-import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
 import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil
@@ -104,11 +103,12 @@ open class GeomHelper(
     }
 
     fun createSvgElementHelper(): SvgElementHelper {
-        return SvgElementHelper(::toClient)
+        return SvgElementHelper(::toClient, isXkcdStyle = ctx.isXkcdStyle)
     }
 
     class SvgElementHelper(
-        private val toClient: (DoubleVector, DataPointAesthetics) -> DoubleVector? = { v, _ -> v }
+        private val toClient: (DoubleVector, DataPointAesthetics) -> DoubleVector? = { v, _ -> v },
+        private val isXkcdStyle: Boolean = false
     ) {
         private var myGeometryWithPadding: Boolean = true
         private var myNoSvg: Boolean = false
@@ -238,7 +238,7 @@ open class GeomHelper(
             if (lineString.isEmpty() || lineString.size == 1) return null
 
             var lineStringAfterPadding = padLineString(lineString, p, padArrow = true)
-            if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+            if (isXkcdStyle) {
                 lineStringAfterPadding = XkcdPathEffect.toHandDrawn(lineStringAfterPadding)
             }
 

@@ -8,7 +8,6 @@ package org.jetbrains.letsPlot.core.plot.builder.guide
 import org.jetbrains.letsPlot.commons.geometry.DoubleRectangle
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.values.Color
-import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.render.linetype.LineType
 import org.jetbrains.letsPlot.core.plot.base.render.svg.Label
 import org.jetbrains.letsPlot.core.plot.base.render.svg.StrokeDashArraySupport
@@ -35,6 +34,7 @@ class AxisComponent(
     private val breaksData: BreaksData,
     private val labelAdjustments: TickLabelAdjustments = TickLabelAdjustments(orientation),
     private val axisTheme: AxisTheme,
+    private val isXkcdStyle: Boolean = false,
     private val hideAxis: Boolean = false,
     private val hideAxisBreaks: Boolean = false,
 ) : SvgComponent() {
@@ -113,7 +113,7 @@ class AxisComponent(
             val y1: Double = if (!orientation.isHorizontal) start else 0.0
             val y2: Double = if (!orientation.isHorizontal) end else 0.0
 
-            val axisLine: SvgNode = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+            val axisLine: SvgNode = if (isXkcdStyle) {
                 val handDrawn = XkcdPathEffect.toHandDrawn(listOf(DoubleVector(x1, y1), DoubleVector(x2, y2)))
                 SvgPathElement().apply {
                     d().set(SvgPathDataBuilder().lineString(handDrawn).build())
@@ -166,7 +166,7 @@ class AxisComponent(
     }
 
     private fun buildTickMark(style: TickStyle): SvgNode {
-        if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+        if (isXkcdStyle) {
             val start = DoubleVector(0.0, 0.0)
             val end = when (orientation) {
                 Orientation.LEFT -> DoubleVector(-style.length, 0.0)

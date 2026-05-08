@@ -10,7 +10,6 @@ import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.intern.typedGeometry.algorithms.AdaptiveResampler
 import org.jetbrains.letsPlot.commons.intern.typedGeometry.algorithms.AdaptiveResampler.Companion.resample
 import org.jetbrains.letsPlot.core.commons.geometry.PolylineSimplifier
-import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
@@ -42,7 +41,7 @@ class RectanglesHelper(
                         DoubleVector(rect.left, rect.top)
                     )
                 ) { toClient(it, p) }
-                if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                if (ctx.isXkcdStyle) {
                     polyRect = XkcdPathEffect.toHandDrawn(polyRect)
                 }
 
@@ -59,7 +58,7 @@ class RectanglesHelper(
         myAesthetics.dataPoints().forEach { p ->
             geometryFactory(p)?.let { rect ->
                 val clientRect = toClient(rect, p) ?: return@let
-                if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                if (ctx.isXkcdStyle) {
                     val handDrawnRect = XkcdPathEffect.toHandDrawn(
                         listOf(
                             DoubleVector(clientRect.left, clientRect.top),
@@ -90,7 +89,7 @@ class RectanglesHelper(
             val p = myAesthetics.dataPointAt(index)
             val clientRect = geometryFactory(p) ?: continue
 
-            if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+            if (ctx.isXkcdStyle) {
                 val handDrawnRect = XkcdPathEffect.toHandDrawn(
                     listOf(
                         DoubleVector(clientRect.left, clientRect.top),
@@ -164,7 +163,7 @@ class RectanglesHelper(
 
                         it.firstOrNull() ?: emptyList()
                     }
-                    if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                    if (ctx.isXkcdStyle) {
                         simplified = XkcdPathEffect.toHandDrawn(simplified)
                     }
 
@@ -178,7 +177,7 @@ class RectanglesHelper(
 
                     onGeometry(p, clientRect, null)
 
-                    if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+                    if (ctx.isXkcdStyle) {
                         val handDrawnRect = XkcdPathEffect.toHandDrawn(
                             listOf(
                                 DoubleVector(clientRect.left, clientRect.top),

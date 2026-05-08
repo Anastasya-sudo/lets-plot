@@ -47,6 +47,7 @@ class ThemeConfig constructor(
             value = convertTitlePosition(key, value)
             value = convertTagPosition(key, value)
             value = convertTagLocation(key, value)
+            value = convertStyle(key, value)
             return LegendThemeConfig.convertValue(key, value)
         }
 
@@ -287,6 +288,39 @@ class ThemeConfig constructor(
             }
         }
 
+        private fun convertStyle(key: String, value: Any): Any {
+            if (key != ThemeOption.STYLE) {
+                return value
+            }
+
+            val normalizedName = when (value) {
+                is String -> normalizeStyleName(value)
+                is Map<*, *> -> {
+                    val styleName = value[ThemeOption.Style.NAME] as? String
+                        ?: throw IllegalArgumentException(
+                            "Illegal value: '$value', $key. Expected a string or an object containing '${ThemeOption.Style.NAME}'."
+                        )
+                    normalizeStyleName(styleName)
+                }
+
+                else -> throw IllegalArgumentException(
+                    "Illegal value: '$value', $key. Expected a string or an object."
+                )
+            }
+
+            return mapOf(ThemeOption.Style.NAME to normalizedName)
+        }
+
+        private fun normalizeStyleName(value: String): String {
+            val normalized = value.lowercase()
+            return when (normalized) {
+                ThemeOption.Style.NONE, ThemeOption.Style.XKCD -> normalized
+                else -> throw IllegalArgumentException(
+                    "Illegal value: '$value', ${ThemeOption.STYLE}. Expected values are: '${ThemeOption.Style.NONE}' or '${ThemeOption.Style.XKCD}'."
+                )
+            }
+        }
+
         private fun mergeUserOptions(
             ownThemeUserOptions: Map<String, Any>,
             containerTheme: Theme?
@@ -305,6 +339,7 @@ class ThemeConfig constructor(
                             key in setOf(
                                 Option.Meta.NAME,                  // a name of a predefined theme.
                                 ThemeOption.FLAVOR,
+                                ThemeOption.STYLE,
                                 ThemeOption.LEGEND_POSITION,       // for 'guide collect' in the container feature.
                                 ThemeOption.LEGEND_JUSTIFICATION,
                                 ThemeOption.LEGEND_DIRECTION,

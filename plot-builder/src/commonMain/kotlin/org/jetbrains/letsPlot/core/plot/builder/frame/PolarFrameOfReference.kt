@@ -64,6 +64,7 @@ internal class PolarFrameOfReference(
                 breaksData = breaksData,
                 labelAdjustments = labelAdjustments,
                 axisTheme = vAxisTheme,
+                isXkcdStyle = theme.isXkcdStyle,
                 hideAxisBreaks = !layoutInfo.vAxisShown
             )
 
@@ -89,6 +90,7 @@ internal class PolarFrameOfReference(
                 breaksData = breaksData,
                 labelAdjustments = labelAdjustments,
                 axisTheme = hAxisTheme,
+                isXkcdStyle = theme.isXkcdStyle,
                 hideAxisBreaks = !layoutInfo.hAxisShown
             )
 
@@ -112,6 +114,7 @@ internal class PolarFrameOfReference(
                 minorGrid = breaksData.minorGrid,
                 isHorizontal = true,
                 isOrthogonal = false,
+                isXkcdStyle = theme.isXkcdStyle,
                 geomContentBounds = layoutInfo.geomContentBounds,
                 gridTheme = gridTheme,
                 panelTheme = theme.panel(),
@@ -131,6 +134,7 @@ internal class PolarFrameOfReference(
                 minorGrid = breaksData.minorGrid,
                 isHorizontal = false,
                 isOrthogonal = false,
+                isXkcdStyle = theme.isXkcdStyle,
                 geomContentBounds = layoutInfo.geomContentBounds,
                 gridTheme = gridTheme,
                 panelTheme = theme.panel(),

@@ -21,6 +21,7 @@ import org.jetbrains.letsPlot.core.plot.builder.presentation.PlotLabelSpec
  */
 class EmptyGeomContext : GeomContext {
     override val flipped: Boolean = false
+    override val isXkcdStyle: Boolean = false
     override val targetCollector: GeomTargetCollector = NullGeomTargetCollector
     override val annotation: Annotation? = null
     override val backgroundColor: Color = Color.WHITE

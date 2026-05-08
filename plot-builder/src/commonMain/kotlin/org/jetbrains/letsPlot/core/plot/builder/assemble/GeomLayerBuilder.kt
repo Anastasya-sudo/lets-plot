@@ -7,7 +7,6 @@ package org.jetbrains.letsPlot.core.plot.builder.assemble
 
 import org.jetbrains.letsPlot.commons.interval.DoubleSpan
 import org.jetbrains.letsPlot.commons.values.Color
-import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.commons.typedKey.TypedKeyHashMap
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsDefaults
@@ -48,6 +47,7 @@ class GeomLayerBuilder(
     private val stat: Stat,
     private val posProvider: PosProvider,
     private val fontFamilyRegistry: FontFamilyRegistry,
+    private val isXkcdStyle: Boolean = false,
 ) {
 
     private var myDefaultFormatters: Map<Any, (Any) -> String> = emptyMap()
@@ -249,6 +249,7 @@ class GeomLayerBuilder(
             marginalSide = marginalSide,
             marginalSize = marginalSize,
             fontFamilyRegistry = fontFamilyRegistry,
+            isXkcdStyle = isXkcdStyle,
             colorByAes = colorByAes,
             fillByAes = fillByAes,
             annotationProvider = myAnnotationProvider,
@@ -280,6 +281,7 @@ class GeomLayerBuilder(
         override val marginalSide: MarginSide,
         override val marginalSize: Double,
         override val fontFamilyRegistry: FontFamilyRegistry,
+        override val isXkcdStyle: Boolean,
         override val colorByAes: Aes<Color>,
         override val fillByAes: Aes<Color>,
         private val annotationProvider: ((MappedDataAccess, DataFrame) -> Annotation?)?,
@@ -294,7 +296,7 @@ class GeomLayerBuilder(
         )
         override val geomKind: GeomKind = geomProvider.geomKind
         override val aestheticsDefaults: AestheticsDefaults =
-            if (FeatureSwitch.XKCD_STYLE_ENABLED) {
+            if (isXkcdStyle) {
                 AestheticsDefaults.create(geomKind, geomTheme).let { aestheticsDefaults ->
                     val defaults = if (isYOrientation && geomKind in listOf(GeomKind.CROSS_BAR, GeomKind.POINT_RANGE)) {
                         val defaultX = aestheticsDefaults.defaultValue(Aes.X)

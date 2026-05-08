@@ -13,6 +13,7 @@ import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 
 interface GeomContext {
     val flipped: Boolean
+    val isXkcdStyle: Boolean
     val targetCollector: GeomTargetCollector
     val annotation: Annotation?
     val backgroundColor: Color
