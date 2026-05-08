@@ -29,7 +29,7 @@ object ThemeUtil {
         val baselineValues = ThemeValues.forName(themeName)
         val styleOverrides = styleOverrides(userOptions[ThemeOption.STYLE])
 
-        val effectiveOptions = baselineValues + styleOverrides + userOptions
+        val effectiveOptions = (baselineValues + styleOverrides).mergeWith(userOptions)
 
         if (themeName == ThemeOption.Name.LP_NONE) {
             // Not apply flavor to the 'none' theme

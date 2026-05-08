@@ -256,6 +256,8 @@ internal object BreakLabelsLayoutUtil {
 
     private fun estimateBreakCount(length: Double, axisLength: Double): Int {
         val tickDistance = length + AxisLabelsLayout.MIN_TICK_LABEL_DISTANCE_AUTO
-        return max(1.0, axisLength / tickDistance).toInt()
+        val ratio = axisLength / tickDistance
+        if (!ratio.isFinite()) return 1
+        return max(1.0, ratio).toInt()
     }
 }

@@ -41,9 +41,12 @@ class DefaultTheme internal constructor(
 
     override val isXkcdStyle: Boolean
         get() {
-            val style = options[ThemeOption.STYLE] as? Map<*, *> ?: return false
-            val name = style[ThemeOption.Style.NAME] as? String ?: return false
-            return name == ThemeOption.Style.XKCD
+            val styleName = when (val style = options[ThemeOption.STYLE]) {
+                is String -> style
+                is Map<*, *> -> style[ThemeOption.Style.NAME] as? String
+                else -> null
+            }
+            return styleName?.lowercase() == ThemeOption.Style.XKCD
         }
 
     override fun horizontalAxis(flipAxis: Boolean): AxisTheme = if (flipAxis) axisY else axisX
