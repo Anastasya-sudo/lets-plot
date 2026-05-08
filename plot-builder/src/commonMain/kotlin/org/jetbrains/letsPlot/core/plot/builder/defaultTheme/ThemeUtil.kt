@@ -9,6 +9,7 @@ import org.jetbrains.letsPlot.core.plot.base.theme.DefaultFontFamilyRegistry
 import org.jetbrains.letsPlot.core.plot.base.theme.FontFamilyRegistry
 import org.jetbrains.letsPlot.core.plot.builder.defaultTheme.ThemeFlavor.Companion.SymbolicColor
 import org.jetbrains.letsPlot.core.plot.builder.defaultTheme.values.ThemeOption
+import org.jetbrains.letsPlot.core.plot.builder.defaultTheme.values.ThemeStyleOverrides
 import org.jetbrains.letsPlot.core.plot.builder.defaultTheme.values.ThemeValues
 import org.jetbrains.letsPlot.core.plot.builder.defaultTheme.values.ThemeValues.Companion.mergeWith
 
@@ -26,8 +27,9 @@ object ThemeUtil {
     // open for ThemeOptionTest
     internal fun getThemeValues(themeName: String, userOptions: Map<String, Any> = emptyMap()): Map<String, Any> {
         val baselineValues = ThemeValues.forName(themeName)
+        val styleOverrides = styleOverrides(userOptions[ThemeOption.STYLE])
 
-        val effectiveOptions = baselineValues + userOptions
+        val effectiveOptions = baselineValues + styleOverrides + userOptions
 
         if (themeName == ThemeOption.Name.LP_NONE) {
             // Not apply flavor to the 'none' theme
@@ -64,5 +66,31 @@ object ThemeUtil {
         return geomThemeOptions
             .mergeWith(flavor.specialColors)
             .mergeWith(withResolvedColors)
+    }
+
+    private fun styleOverrides(styleOption: Any?): Map<String, Any> {
+        if (styleOption == null) {
+            return emptyMap()
+        }
+
+        val styleName = when (styleOption) {
+            is String -> styleOption
+            is Map<*, *> -> styleOption[ThemeOption.Style.NAME] as? String
+                ?: throw IllegalArgumentException(
+                    "Illegal value: '$styleOption', ${ThemeOption.STYLE}. Expected a string or an object containing '${ThemeOption.Style.NAME}'."
+                )
+
+            else -> throw IllegalArgumentException(
+                "Illegal value: '$styleOption', ${ThemeOption.STYLE}. Expected a string or an object."
+            )
+        }.lowercase()
+
+        return when (styleName) {
+            ThemeOption.Style.NONE -> emptyMap()
+            ThemeOption.Style.XKCD -> ThemeStyleOverrides.XKCD
+            else -> throw IllegalArgumentException(
+                "Illegal value: '$styleName', ${ThemeOption.STYLE}. Expected values are: '${ThemeOption.Style.NONE}' or '${ThemeOption.Style.XKCD}'."
+            )
+        }
     }
 }

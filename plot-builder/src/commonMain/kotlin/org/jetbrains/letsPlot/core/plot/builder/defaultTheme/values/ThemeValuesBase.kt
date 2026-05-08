@@ -6,7 +6,6 @@
 package org.jetbrains.letsPlot.core.plot.builder.defaultTheme.values
 
 import org.jetbrains.letsPlot.commons.values.FontFace
-import org.jetbrains.letsPlot.core.FeatureSwitch
 import org.jetbrains.letsPlot.core.plot.base.guide.*
 import org.jetbrains.letsPlot.core.plot.base.render.linetype.NamedLineType
 import org.jetbrains.letsPlot.core.plot.base.theme.TagLocation
@@ -69,26 +68,10 @@ import org.jetbrains.letsPlot.core.plot.builder.presentation.Defaults
 internal open class ThemeValuesBase : ThemeValues(VALUES) {
 
     companion object {
-        private val DEFAULT_TEXT_FAMILY = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
-            "Humor Sans"
-        } else {
-            Defaults.FONT_FAMILY_NORMAL
-        }
-        private val DEFAULT_AXIS_TICKS_LENGTH = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
-            15.0
-        } else {
-            4.0
-        }
-        private val DEFAULT_AXIS_TEXT_SIZE = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
-            20.0
-        } else {
-            Defaults.FONT_SMALL
-        }
-        private val DEFAULT_PLOT_TITLE_SIZE = if (FeatureSwitch.XKCD_STYLE_ENABLED) {
-            24.0
-        } else {
-            Defaults.FONT_LARGE
-        }
+        private val DEFAULT_TEXT_FAMILY = Defaults.FONT_FAMILY_NORMAL
+        private const val DEFAULT_AXIS_TICKS_LENGTH = 4.0
+        private val DEFAULT_AXIS_TEXT_SIZE = Defaults.FONT_SMALL
+        private val DEFAULT_PLOT_TITLE_SIZE = Defaults.FONT_LARGE
 
         private val VALUES: Map<String, Any> = mapOf(
             LINE to mapOf(
