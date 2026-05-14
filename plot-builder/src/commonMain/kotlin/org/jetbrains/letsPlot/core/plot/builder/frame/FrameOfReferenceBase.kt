@@ -12,6 +12,7 @@ import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.core.interact.UnsupportedInteractionException
 import org.jetbrains.letsPlot.core.plot.base.CoordinateSystem
 import org.jetbrains.letsPlot.core.plot.base.PlotContext
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.SvgComponent
 import org.jetbrains.letsPlot.core.plot.base.theme.PanelGridTheme
 import org.jetbrains.letsPlot.core.plot.base.theme.Theme
@@ -199,7 +200,7 @@ internal abstract class FrameOfReferenceBase(
 
             val ctx = GeomContextBuilder()
                 .flipped(flippedAxis)
-                .xkcdStyle(layer.isXkcdStyle)
+                .style(if (layer.isXkcdStyle) GeomStyle.Xkcd else GeomStyle.Regular)
                 .aesthetics(aesthetics)
                 .aestheticMappers(aestheticMappers)
                 .aesBounds(xyAesBounds)

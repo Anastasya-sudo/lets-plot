@@ -9,11 +9,12 @@ import org.jetbrains.letsPlot.commons.geometry.DoubleRectangle
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.core.plot.base.geom.annotation.Annotation
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 
 object BogusContext : GeomContext {
-    override val isXkcdStyle: Boolean
-        get() = false
+    override val style: GeomStyle
+        get() = GeomStyle.Regular
     override val flipped: Boolean
         get() = error("Not available in a bogus geom context")
     override val targetCollector: GeomTargetCollector

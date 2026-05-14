@@ -9,11 +9,12 @@ import org.jetbrains.letsPlot.commons.geometry.DoubleRectangle
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.core.plot.base.geom.annotation.Annotation
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 
 interface GeomContext {
     val flipped: Boolean
-    val isXkcdStyle: Boolean
+    val style: GeomStyle
     val targetCollector: GeomTargetCollector
     val annotation: Annotation?
     val backgroundColor: Color
