@@ -21,6 +21,7 @@ import org.jetbrains.letsPlot.core.plot.base.render.LegendKeyElementFactory
 import org.jetbrains.letsPlot.core.plot.base.render.SvgRoot
 import org.jetbrains.letsPlot.core.plot.base.render.point.NamedShape
 import org.jetbrains.letsPlot.core.plot.base.render.point.PointShapeSvg
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
 import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
@@ -40,6 +41,8 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
     var slope: Double = DEF_SLOPE
     var intercept: Double = DEF_INTERCEPT
     var direction: Direction = DEF_DIRECTION
+
+    // TODO: collapse the isXkcdStyle branches via the geometry-primitive factory (circle candy is a true SVG circle)
     private var isXkcdStyle: Boolean = false
 
     override val legendKeyElementFactory: LegendKeyElementFactory
@@ -60,7 +63,7 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
         coord: CoordinateSystem,
         ctx: GeomContext
     ) {
-        isXkcdStyle = ctx.isXkcdStyle
+        isXkcdStyle = ctx.style == GeomStyle.Xkcd
         val helper = GeomHelper(pos, coord, ctx)
         val targetCollector = getGeomTargetCollector(ctx)
         val colorsByDataPoint = HintColorUtil.createColorMarkerMapper(GeomKind.LOLLIPOP, ctx)
@@ -181,7 +184,7 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
             }
             val neck = shiftHeadToBase(clientBase, clientHead, candyRadius) // meeting point of candy and stick
             if (isXkcdStyle) {
-                val svgElementHelper = GeomHelper.SvgElementHelper(isXkcdStyle = true)
+                val svgElementHelper = GeomHelper.SvgElementHelper(style = GeomStyle.Xkcd)
                     .setStrokeAlphaEnabled(true)
                 return svgElementHelper.createLine(clientBase, neck, point, strokeScaler = AesScaling::lineWidth)?.first
             } else {

@@ -20,6 +20,7 @@ import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil
 import org.jetbrains.letsPlot.core.plot.base.geom.util.HintColorUtil
 import org.jetbrains.letsPlot.core.plot.base.render.LegendKeyElementFactory
 import org.jetbrains.letsPlot.core.plot.base.render.SvgRoot
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
 import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
@@ -40,6 +41,8 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
     var sizeUnit: String? = null
     var start: Double? = null
     var clockwise: Boolean = true
+
+    // TODO: collapse the isXkcdStyle branches via the geometry-primitive factory (sectors/arcs are true SVG arcs)
     private var isXkcdStyle: Boolean = false
 
     enum class StrokeSide {
@@ -62,7 +65,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
         coord: CoordinateSystem,
         ctx: GeomContext
     ) {
-        isXkcdStyle = ctx.isXkcdStyle
+        isXkcdStyle = ctx.style == GeomStyle.Xkcd
         val geomHelper = GeomHelper(pos, coord, ctx)
         GeomUtil.withDefined(aesthetics.dataPoints(), Aes.X, Aes.Y, Aes.SLICE)
             .groupBy { p -> DoubleVector(p.x()!!, p.y()!!) }
