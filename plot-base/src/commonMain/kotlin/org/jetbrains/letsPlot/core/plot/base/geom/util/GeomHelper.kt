@@ -22,8 +22,8 @@ import org.jetbrains.letsPlot.core.plot.base.geom.DimensionUnit
 import org.jetbrains.letsPlot.core.plot.base.geom.DimensionUnit.*
 import org.jetbrains.letsPlot.core.plot.base.geom.util.ArrowSpec.Companion.toArrowAes
 import org.jetbrains.letsPlot.core.plot.base.geom.util.ArrowSpec.Type.CLOSED
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.StrokeDashArraySupport
-import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.datamodel.svg.dom.*
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathDataBuilder.Interpolation
@@ -103,12 +103,12 @@ open class GeomHelper(
     }
 
     fun createSvgElementHelper(): SvgElementHelper {
-        return SvgElementHelper(::toClient, isXkcdStyle = ctx.isXkcdStyle)
+        return SvgElementHelper(::toClient, style = ctx.style)
     }
 
     class SvgElementHelper(
         private val toClient: (DoubleVector, DataPointAesthetics) -> DoubleVector? = { v, _ -> v },
-        private val isXkcdStyle: Boolean = false
+        private val style: GeomStyle = GeomStyle.Regular
     ) {
         private var myGeometryWithPadding: Boolean = true
         private var myNoSvg: Boolean = false
@@ -237,10 +237,7 @@ open class GeomHelper(
 
             if (lineString.isEmpty() || lineString.size == 1) return null
 
-            var lineStringAfterPadding = padLineString(lineString, p, padArrow = true)
-            if (isXkcdStyle) {
-                lineStringAfterPadding = XkcdPathEffect.toHandDrawn(lineStringAfterPadding)
-            }
+            val lineStringAfterPadding = style.resamplePath(padLineString(lineString, p, padArrow = true))
 
             val lineElement = if (lineStringAfterPadding.size == 2) {
                 // Simple SvgLineElement is enough for a straight line without arrow
