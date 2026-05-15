@@ -7,6 +7,7 @@ package org.jetbrains.letsPlot.core.plot.builder.frame
 
 import org.jetbrains.letsPlot.commons.geometry.DoubleRectangle
 import org.jetbrains.letsPlot.core.plot.base.PlotContext
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.StrokeDashArraySupport
 import org.jetbrains.letsPlot.core.plot.base.render.svg.SvgComponent
 import org.jetbrains.letsPlot.core.plot.base.scale.ScaleBreaks
@@ -64,7 +65,7 @@ internal class PolarFrameOfReference(
                 breaksData = breaksData,
                 labelAdjustments = labelAdjustments,
                 axisTheme = vAxisTheme,
-                isXkcdStyle = theme.isXkcdStyle,
+                isXkcdStyle = theme.style == GeomStyle.Xkcd,
                 hideAxisBreaks = !layoutInfo.vAxisShown
             )
 
@@ -90,7 +91,7 @@ internal class PolarFrameOfReference(
                 breaksData = breaksData,
                 labelAdjustments = labelAdjustments,
                 axisTheme = hAxisTheme,
-                isXkcdStyle = theme.isXkcdStyle,
+                isXkcdStyle = theme.style == GeomStyle.Xkcd,
                 hideAxisBreaks = !layoutInfo.hAxisShown
             )
 
@@ -114,7 +115,7 @@ internal class PolarFrameOfReference(
                 minorGrid = breaksData.minorGrid,
                 isHorizontal = true,
                 isOrthogonal = false,
-                isXkcdStyle = theme.isXkcdStyle,
+                isXkcdStyle = theme.style == GeomStyle.Xkcd,
                 geomContentBounds = layoutInfo.geomContentBounds,
                 gridTheme = gridTheme,
                 panelTheme = theme.panel(),
@@ -134,7 +135,7 @@ internal class PolarFrameOfReference(
                 minorGrid = breaksData.minorGrid,
                 isHorizontal = false,
                 isOrthogonal = false,
-                isXkcdStyle = theme.isXkcdStyle,
+                isXkcdStyle = theme.style == GeomStyle.Xkcd,
                 geomContentBounds = layoutInfo.geomContentBounds,
                 gridTheme = gridTheme,
                 panelTheme = theme.panel(),

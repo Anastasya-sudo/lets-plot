@@ -7,6 +7,7 @@ package org.jetbrains.letsPlot.core.plot.builder.defaultTheme
 
 import org.jetbrains.letsPlot.core.plot.base.GeomKind
 import org.jetbrains.letsPlot.core.plot.base.aes.GeomTheme
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.theme.*
 import org.jetbrains.letsPlot.core.plot.base.theme.ExponentFormat.Companion.DEF_EXPONENT_FORMAT
 import org.jetbrains.letsPlot.core.plot.builder.defaultTheme.values.ThemeOption
@@ -39,14 +40,14 @@ class DefaultTheme internal constructor(
             } ?: DEF_EXPONENT_FORMAT
         }
 
-    override val isXkcdStyle: Boolean
+    override val style: GeomStyle
         get() {
             val styleName = when (val style = options[ThemeOption.STYLE]) {
                 is String -> style
                 is Map<*, *> -> style[ThemeOption.Style.NAME] as? String
                 else -> null
             }
-            return styleName?.lowercase() == ThemeOption.Style.XKCD
+            return if (styleName?.lowercase() == ThemeOption.Style.XKCD) GeomStyle.Xkcd else GeomStyle.Regular
         }
 
     override fun horizontalAxis(flipAxis: Boolean): AxisTheme = if (flipAxis) axisY else axisX
