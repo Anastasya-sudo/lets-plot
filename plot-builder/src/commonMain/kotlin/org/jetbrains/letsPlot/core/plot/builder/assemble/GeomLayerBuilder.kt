@@ -19,6 +19,7 @@ import org.jetbrains.letsPlot.core.plot.base.geom.LiveMapProvider
 import org.jetbrains.letsPlot.core.plot.base.geom.annotation.Annotation
 import org.jetbrains.letsPlot.core.plot.base.pos.PositionAdjustments
 import org.jetbrains.letsPlot.core.plot.base.render.LegendKeyElementFactory
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.stat.SimpleStatContext
 import org.jetbrains.letsPlot.core.plot.base.stat.Stats
 import org.jetbrains.letsPlot.core.plot.base.theme.DefaultFontFamilyRegistry
@@ -47,7 +48,7 @@ class GeomLayerBuilder(
     private val stat: Stat,
     private val posProvider: PosProvider,
     private val fontFamilyRegistry: FontFamilyRegistry,
-    private val isXkcdStyle: Boolean = false,
+    private val style: GeomStyle = GeomStyle.Regular,
 ) {
 
     private var myDefaultFormatters: Map<Any, (Any) -> String> = emptyMap()
@@ -249,7 +250,7 @@ class GeomLayerBuilder(
             marginalSide = marginalSide,
             marginalSize = marginalSize,
             fontFamilyRegistry = fontFamilyRegistry,
-            isXkcdStyle = isXkcdStyle,
+            style = style,
             colorByAes = colorByAes,
             fillByAes = fillByAes,
             annotationProvider = myAnnotationProvider,
@@ -281,7 +282,7 @@ class GeomLayerBuilder(
         override val marginalSide: MarginSide,
         override val marginalSize: Double,
         override val fontFamilyRegistry: FontFamilyRegistry,
-        override val isXkcdStyle: Boolean,
+        private val style: GeomStyle,
         override val colorByAes: Aes<Color>,
         override val fillByAes: Aes<Color>,
         private val annotationProvider: ((MappedDataAccess, DataFrame) -> Annotation?)?,
@@ -296,7 +297,7 @@ class GeomLayerBuilder(
         )
         override val geomKind: GeomKind = geomProvider.geomKind
         override val aestheticsDefaults: AestheticsDefaults =
-            if (isXkcdStyle) {
+            if (style == GeomStyle.Xkcd) {
                 AestheticsDefaults.create(geomKind, geomTheme).let { aestheticsDefaults ->
                     val defaults = if (isYOrientation && geomKind in listOf(GeomKind.CROSS_BAR, GeomKind.POINT_RANGE)) {
                         val defaultX = aestheticsDefaults.defaultValue(Aes.X)

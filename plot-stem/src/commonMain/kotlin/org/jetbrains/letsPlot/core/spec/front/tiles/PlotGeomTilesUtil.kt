@@ -11,7 +11,6 @@ import org.jetbrains.letsPlot.core.plot.base.Aes
 import org.jetbrains.letsPlot.core.plot.base.FormatterUtil
 import org.jetbrains.letsPlot.core.plot.base.Scale
 import org.jetbrains.letsPlot.core.plot.base.data.DataFrameUtil
-import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.stat.Stats
 import org.jetbrains.letsPlot.core.plot.base.theme.ExponentFormat
 import org.jetbrains.letsPlot.core.plot.base.theme.FontFamilyRegistry
@@ -178,7 +177,7 @@ internal object PlotGeomTilesUtil {
             stat = stat,
             posProvider = layerConfig.posProvider,
             fontFamilyRegistry = fontFamilyRegistry,
-            isXkcdStyle = theme.style == GeomStyle.Xkcd,
+            style = theme.style,
         )
             .yOrientation(layerConfig.isYOrientation)
             .marginal(layerConfig.isMarginal, layerConfig.marginalSide, layerConfig.marginalSize)
