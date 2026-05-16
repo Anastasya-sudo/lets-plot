@@ -297,36 +297,22 @@ class GeomLayerBuilder(
         )
         override val geomKind: GeomKind = geomProvider.geomKind
         override val aestheticsDefaults: AestheticsDefaults =
-            if (style == GeomStyle.Xkcd) {
-                AestheticsDefaults.create(geomKind, geomTheme).let { aestheticsDefaults ->
-                    val defaults = if (isYOrientation && geomKind in listOf(GeomKind.CROSS_BAR, GeomKind.POINT_RANGE)) {
-                        val defaultX = aestheticsDefaults.defaultValue(Aes.X)
-                        val defaultY = aestheticsDefaults.defaultValue(Aes.Y)
-                        aestheticsDefaults
-                            .with(Aes.Y, defaultX)
-                            .with(Aes.X, defaultY)
-                    } else {
-                        aestheticsDefaults
-                    }
-
-                    if (geomKind in XKCD_TEXT_GEOMS) {
-                        defaults.with(Aes.FAMILY, XKCD_TEXT_FAMILY)
-                    } else {
-                        defaults
-                    }
+            AestheticsDefaults.create(geomKind, geomTheme).let { aestheticsDefaults ->
+                // Default y must be NaN or 0 depending on the orientation to avoid drawing the midline/midpoint when it is not specified
+                val defaults = if (isYOrientation && geomKind in listOf(GeomKind.CROSS_BAR, GeomKind.POINT_RANGE)) {
+                    val defaultX = aestheticsDefaults.defaultValue(Aes.X)
+                    val defaultY = aestheticsDefaults.defaultValue(Aes.Y)
+                    aestheticsDefaults
+                        .with(Aes.Y, defaultX)
+                        .with(Aes.X, defaultY)
+                } else {
+                    aestheticsDefaults
                 }
-            } else {
-                AestheticsDefaults.create(geomKind, geomTheme).let { aestheticsDefaults ->
-                    // Default y must be NaN or 0 depending on the orientation to avoid drawing the midline/midpoint when it is not specified
-                    if (isYOrientation && geomKind in listOf(GeomKind.CROSS_BAR, GeomKind.POINT_RANGE)) {
-                        val defaultX = aestheticsDefaults.defaultValue(Aes.X)
-                        val defaultY = aestheticsDefaults.defaultValue(Aes.Y)
-                        aestheticsDefaults
-                            .with(Aes.Y, defaultX)
-                            .with(Aes.X, defaultY)
-                    } else {
-                        aestheticsDefaults
-                    }
+
+                if (style == GeomStyle.Xkcd && geomKind in XKCD_TEXT_GEOMS) {
+                    defaults.with(Aes.FAMILY, XKCD_TEXT_FAMILY)
+                } else {
+                    defaults
                 }
             }
 
