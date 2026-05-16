@@ -10,6 +10,7 @@ import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.core.plot.base.layout.Thickness
 import org.jetbrains.letsPlot.core.plot.base.render.linetype.LineType
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.StrokeDashArraySupport
 import org.jetbrains.letsPlot.core.plot.base.render.svg.SvgComponent
 import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
@@ -23,7 +24,7 @@ class GridComponent constructor(
     private val minorGrid: List<List<DoubleVector>>,
     private val isHorizontal: Boolean,
     private val isOrthogonal: Boolean,
-    private val isXkcdStyle: Boolean = false,
+    private val style: GeomStyle = GeomStyle.Regular,
     geomContentBounds: DoubleRectangle,
     private val gridTheme: PanelGridTheme,
     panelTheme: PanelTheme
@@ -101,7 +102,7 @@ class GridComponent constructor(
         color: Color,
         lineType: LineType
     ): SvgNode {
-        val shapeElem: SvgShape = if (isXkcdStyle) {
+        val shapeElem: SvgShape = if (style == GeomStyle.Xkcd) {
             val handDrawn = XkcdPathEffect.toHandDrawn(lineString)
             SvgPathElement(SvgPathDataBuilder().lineString(handDrawn).build())
         } else {
