@@ -68,6 +68,7 @@ internal abstract class FrameOfReferenceBase(
             flipAxis,
             targetCollector,
             backgroundColor = if (theme.panel().showRect()) theme.panel().rectFill() else theme.plot().backgroundFill(),
+            style = theme.style,
             bounds = layoutInfo.geomContentBounds
         )
     }
@@ -167,6 +168,7 @@ internal abstract class FrameOfReferenceBase(
             flippedAxis: Boolean,
             targetCollector: GeomTargetCollector,
             backgroundColor: Color,
+            style: GeomStyle,
             bounds: DoubleRectangle = DoubleRectangle(DoubleVector.ZERO, DoubleVector.ZERO),
         ): SvgComponent {
             val rendererData = LayerRendererUtil.createLayerRendererData(layer)
@@ -200,7 +202,7 @@ internal abstract class FrameOfReferenceBase(
 
             val ctx = GeomContextBuilder()
                 .flipped(flippedAxis)
-                .style(if (layer.isXkcdStyle) GeomStyle.Xkcd else GeomStyle.Regular)
+                .style(style)
                 .aesthetics(aesthetics)
                 .aestheticMappers(aestheticMappers)
                 .aesBounds(xyAesBounds)

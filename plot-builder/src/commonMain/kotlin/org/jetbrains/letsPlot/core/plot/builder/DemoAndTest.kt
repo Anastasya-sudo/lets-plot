@@ -8,6 +8,7 @@ package org.jetbrains.letsPlot.core.plot.builder
 import org.jetbrains.letsPlot.commons.geometry.DoubleRectangle
 import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.core.plot.base.CoordinateSystem
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.SvgComponent
 import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 import org.jetbrains.letsPlot.core.plot.builder.assemble.TestingPlotContext
@@ -19,7 +20,8 @@ object DemoAndTest {
         xyAesBounds: DoubleRectangle,
         coord: CoordinateSystem,
         flippedAxis: Boolean,
-        targetCollector: GeomTargetCollector
+        targetCollector: GeomTargetCollector,
+        style: GeomStyle = GeomStyle.Regular,
     ): SvgComponent {
         return FrameOfReferenceBase.buildGeom(
             plotContext = TestingPlotContext.create(layer),
@@ -28,7 +30,8 @@ object DemoAndTest {
             coord = coord,
             flippedAxis = flippedAxis,
             targetCollector = targetCollector,
-            backgroundColor = Color.WHITE
+            backgroundColor = Color.WHITE,
+            style = style
         )
     }
 }
