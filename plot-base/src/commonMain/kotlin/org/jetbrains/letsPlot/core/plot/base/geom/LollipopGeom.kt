@@ -13,7 +13,6 @@ import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
 import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil
 import org.jetbrains.letsPlot.core.plot.base.geom.legend.LollipopLegendKeyElementFactory
-import org.jetbrains.letsPlot.core.plot.base.geom.util.approximateArc
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomHelper
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil.toLocation
 import org.jetbrains.letsPlot.core.plot.base.geom.util.HintColorUtil
@@ -23,17 +22,12 @@ import org.jetbrains.letsPlot.core.plot.base.render.point.NamedShape
 import org.jetbrains.letsPlot.core.plot.base.render.point.PointShapeSvg
 import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
-import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgGElement
-import org.jetbrains.letsPlot.datamodel.svg.dom.SvgLineElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgNode
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathDataBuilder
-import kotlin.math.PI
-import kotlin.math.cos
 import kotlin.math.pow
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 class LollipopGeom : GeomBase(), WithWidth, WithHeight {
@@ -41,9 +35,6 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
     var slope: Double = DEF_SLOPE
     var intercept: Double = DEF_INTERCEPT
     var direction: Direction = DEF_DIRECTION
-
-    // TODO: collapse the isXkcdStyle branches via the geometry-primitive factory (circle candy is a true SVG circle)
-    private var isXkcdStyle: Boolean = false
 
     override val legendKeyElementFactory: LegendKeyElementFactory
         get() = LollipopLegendKeyElementFactory()
@@ -63,7 +54,6 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
         coord: CoordinateSystem,
         ctx: GeomContext
     ) {
-        isXkcdStyle = ctx.style == GeomStyle.Xkcd
         val helper = GeomHelper(pos, coord, ctx)
         val targetCollector = getGeomTargetCollector(ctx)
         val colorsByDataPoint = HintColorUtil.createColorMarkerMapper(GeomKind.LOLLIPOP, ctx)
@@ -77,11 +67,11 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
         }
         // Sort lollipops to better displaying when they are intersects
         for (lollipop in lollipops.sortedByDescending { it.length }) {
-            val stick = lollipop.createStick(helper)
+            val stick = lollipop.createStick(helper, ctx.style)
             if (stick != null) {
                 root.add(stick)
             }
-            root.add(lollipop.createCandy(helper))
+            root.add(lollipop.createCandy(helper, ctx.style))
             buildHint(lollipop, helper, targetCollector, colorsByDataPoint)
         }
     }
@@ -164,18 +154,16 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
                 return (shape.size(point, fatten) + shapeCoeff * shape.strokeWidth(point)) / 2.0
             }
 
-        fun createCandy(helper: GeomHelper): SvgGElement {
+        fun createCandy(helper: GeomHelper, style: GeomStyle): SvgGElement {
             val location = helper.toClient(head, point)!!
             val shape = point.shape()!!
-            if (isXkcdStyle && shape is NamedShape && shape.isCircleCandyShape()) {
-                return createXkcdCircleCandy(shape, location)
-            } else {
-                val o = PointShapeSvg.create(shape, location, point, fatten)
-                return wrap(o)
+            if (style == GeomStyle.Xkcd && shape is NamedShape && shape.isCircleCandyShape()) {
+                return createCircleCandy(shape, location, style)
             }
+            return wrap(PointShapeSvg.create(shape, location, point, fatten))
         }
 
-        fun createStick(helper: GeomHelper): SvgNode? {
+        fun createStick(helper: GeomHelper, style: GeomStyle): SvgNode? {
             val clientBase = helper.toClient(base, point) ?: return null // base of the lollipop stick
             val clientHead = helper.toClient(head, point) ?: return null // center of the lollipop candy
             val stickLength = sqrt((clientHead.x - clientBase.x).pow(2) + (clientHead.y - clientBase.y).pow(2))
@@ -183,15 +171,9 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
                 return null
             }
             val neck = shiftHeadToBase(clientBase, clientHead, candyRadius) // meeting point of candy and stick
-            if (isXkcdStyle) {
-                val svgElementHelper = GeomHelper.SvgElementHelper(style = GeomStyle.Xkcd)
-                    .setStrokeAlphaEnabled(true)
-                return svgElementHelper.createLine(clientBase, neck, point, strokeScaler = AesScaling::lineWidth)?.first
-            } else {
-                val line = SvgLineElement(clientBase.x, clientBase.y, neck.x, neck.y)
-                GeomHelper.decorate(line, point, applyAlphaToAll = true, strokeScaler = AesScaling::lineWidth)
-                return line
-            }
+            val svgElementHelper = GeomHelper.SvgElementHelper(style = style)
+                .setStrokeAlphaEnabled(true)
+            return svgElementHelper.createLine(clientBase, neck, point, strokeScaler = AesScaling::lineWidth)?.first
         }
 
         private fun shiftHeadToBase(
@@ -219,19 +201,15 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
             return DoubleVector(x, y)
         }
 
-        private fun createXkcdCircleCandy(shape: NamedShape, center: DoubleVector): SvgGElement {
+        private fun createCircleCandy(shape: NamedShape, center: DoubleVector, style: GeomStyle): SvgGElement {
             val radius = shape.size(point, fatten) / 2.0
             if (!radius.isFinite() || radius <= 0.0) {
-                val o = PointShapeSvg.create(shape, center, point, fatten)
-                return wrap(o)
+                return wrap(PointShapeSvg.create(shape, center, point, fatten))
             }
-
-            val circlePath = approximateCircle(center, radius)
-            val handDrawn = XkcdPathEffect.toHandDrawn(circlePath)
 
             val path = LinePath(
                 SvgPathDataBuilder().apply {
-                    lineString(handDrawn)
+                    lineString(style.circle(center, radius))
                     closePath()
                 }
             )
@@ -255,32 +233,6 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
             path.width().set(strokeWidth)
 
             return path.rootGroup
-        }
-
-        private fun approximateCircle(center: DoubleVector, radius: Double): List<DoubleVector> {
-            val arcPoint = { angle: Double ->
-                center.add(DoubleVector(radius * cos(angle), radius * sin(angle)))
-            }
-
-            val right = arcPoint(0.0)
-            val left = arcPoint(PI)
-
-            val upperArc = approximateArc(
-                startPoint = right,
-                endPoint = left,
-                startAngle = 0.0,
-                endAngle = PI,
-                arcPoint = arcPoint
-            )
-            val lowerArc = approximateArc(
-                startPoint = left,
-                endPoint = right,
-                startAngle = PI,
-                endAngle = 2.0 * PI,
-                arcPoint = arcPoint
-            )
-
-            return upperArc + lowerArc.drop(1)
         }
 
         private fun NamedShape.isCircleCandyShape(): Boolean {
