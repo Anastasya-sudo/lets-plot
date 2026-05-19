@@ -18,15 +18,6 @@ interface GeomStyle {
     fun rectangle(rect: DoubleRectangle): List<DoubleVector> =
         resamplePath(rectanglePoints(rect))
 
-    fun arc(
-        startPoint: DoubleVector,
-        endPoint: DoubleVector,
-        startAngle: Double,
-        endAngle: Double,
-        arcPoint: (Double) -> DoubleVector
-    ): List<DoubleVector> =
-        resamplePath(approximateArc(startPoint, endPoint, startAngle, endAngle, arcPoint))
-
     fun circle(center: DoubleVector, radius: Double): List<DoubleVector> =
         resamplePath(approximateCircle(center, radius))
 
