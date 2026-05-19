@@ -162,6 +162,7 @@ internal abstract class FrameOfReferenceProviderBase(
                 adjustedDomain = adjustedDomain,
                 coord,
                 plotBackground,
+                style = theme.style,
                 debugDrawing,
             )
         }

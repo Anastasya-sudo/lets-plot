@@ -12,6 +12,7 @@ import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.core.interact.UnsupportedInteractionException
 import org.jetbrains.letsPlot.core.plot.base.CoordinateSystem
 import org.jetbrains.letsPlot.core.plot.base.PlotContext
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.SvgComponent
 import org.jetbrains.letsPlot.core.plot.base.theme.PanelGridTheme
 import org.jetbrains.letsPlot.core.plot.base.theme.Theme
@@ -67,6 +68,7 @@ internal abstract class FrameOfReferenceBase(
             flipAxis,
             targetCollector,
             backgroundColor = if (theme.panel().showRect()) theme.panel().rectFill() else theme.plot().backgroundFill(),
+            style = theme.style,
             bounds = layoutInfo.geomContentBounds
         )
     }
@@ -166,6 +168,7 @@ internal abstract class FrameOfReferenceBase(
             flippedAxis: Boolean,
             targetCollector: GeomTargetCollector,
             backgroundColor: Color,
+            style: GeomStyle,
             bounds: DoubleRectangle = DoubleRectangle(DoubleVector.ZERO, DoubleVector.ZERO),
         ): SvgComponent {
             val rendererData = LayerRendererUtil.createLayerRendererData(layer)
@@ -199,7 +202,7 @@ internal abstract class FrameOfReferenceBase(
 
             val ctx = GeomContextBuilder()
                 .flipped(flippedAxis)
-                .xkcdStyle(layer.isXkcdStyle)
+                .style(style)
                 .aesthetics(aesthetics)
                 .aestheticMappers(aestheticMappers)
                 .aesBounds(xyAesBounds)

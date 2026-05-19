@@ -101,27 +101,27 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
     companion object {
         val END_OF_SUBPATH: DoubleVector? = null  // End of Sub Path
 
-        fun line(points: Iterable<DoubleVector>, isXkcdStyle: Boolean = false): LinePath {
+        fun line(points: Iterable<DoubleVector>, style: GeomStyle = GeomStyle.Regular): LinePath {
             return LinePath(
                 pathBuilder(
                     points,
                     false,
-                    isXkcdStyle
+                    style
                 )
             )
         }
 
-        fun polygon(points: Iterable<DoubleVector?>, isXkcdStyle: Boolean = false): LinePath {
+        fun polygon(points: Iterable<DoubleVector?>, style: GeomStyle = GeomStyle.Regular): LinePath {
             return LinePath(
                 pathBuilder(
                     points,
                     true,
-                    isXkcdStyle
+                    style
                 )
             )
         }
 
-        private fun pathBuilder(points: Iterable<DoubleVector?>, isPolygon: Boolean, isXkcdStyle: Boolean): SvgPathDataBuilder {
+        private fun pathBuilder(points: Iterable<DoubleVector?>, isPolygon: Boolean, style: GeomStyle): SvgPathDataBuilder {
             val builder = SvgPathDataBuilder(true)
 
             var curSegment: MutableList<DoubleVector> = ArrayList()
@@ -132,7 +132,7 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
                         builder,
                         curSegment,
                         interpolate,
-                        isXkcdStyle
+                        style
                     )
                     if (isPolygon) {
                         builder.closePath()
@@ -146,7 +146,7 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
                 builder,
                 curSegment,
                 interpolate,
-                isXkcdStyle
+                style
             )
             if (isPolygon) {
                 builder.closePath()
@@ -159,25 +159,17 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
             builder: SvgPathDataBuilder,
             curSegment: List<DoubleVector>,
             interpolate: Boolean,
-            isXkcdStyle: Boolean
+            style: GeomStyle
         ) {
             if (curSegment.isEmpty()) {
                 return
             }
-            if (isXkcdStyle) {
-                val handDrawn = XkcdPathEffect.toHandDrawn(curSegment)
-                builder.moveTo(handDrawn[0])
-                builder.interpolatePoints(
-                    handDrawn,
-                    if (interpolate) SvgPathDataBuilder.Interpolation.CARDINAL else SvgPathDataBuilder.Interpolation.LINEAR
-                )
-            } else {
-                builder.moveTo(curSegment[0])
-                builder.interpolatePoints(
-                    curSegment,
-                    if (interpolate) SvgPathDataBuilder.Interpolation.CARDINAL else SvgPathDataBuilder.Interpolation.LINEAR
-                )
-            }
+            val points = style.resamplePath(curSegment)
+            builder.moveTo(points[0])
+            builder.interpolatePoints(
+                points,
+                if (interpolate) SvgPathDataBuilder.Interpolation.CARDINAL else SvgPathDataBuilder.Interpolation.LINEAR
+            )
         }
     }
 }

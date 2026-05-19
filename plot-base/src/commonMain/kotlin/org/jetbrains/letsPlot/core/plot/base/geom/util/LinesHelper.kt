@@ -67,8 +67,8 @@ open class LinesHelper(
             }
 
             val element = when (filled) {
-                true -> LinePath.polygon(visualPath, isXkcdStyle = ctx.isXkcdStyle)
-                false -> LinePath.line(visualPath, isXkcdStyle = ctx.isXkcdStyle)
+                true -> LinePath.polygon(visualPath, style = ctx.style)
+                false -> LinePath.line(visualPath, style = ctx.style)
             }
 
             decorate(element, path.aes, filled)
@@ -121,7 +121,7 @@ open class LinesHelper(
             val element = polygon.coordinates
                 .map { douglasPeucker(it, DOUGLAS_PEUCKER_PIXEL_THRESHOLD) }
                 .let(::insertPathSeparators)
-                .let { LinePath.polygon(it, isXkcdStyle = ctx.isXkcdStyle) }
+                .let { LinePath.polygon(it, style = ctx.style) }
 
             decorate(element, polygon.aes, filled = true)
             element.rootGroup
@@ -202,7 +202,7 @@ open class LinesHelper(
                     prev = point
                 }
 
-                val line = LinePath.line(newPoints, isXkcdStyle = ctx.isXkcdStyle)
+                val line = LinePath.line(newPoints, style = ctx.style)
                 decorate(line, subPath.aes, filled = false)
                 linePaths.add(line)
             }
@@ -254,7 +254,7 @@ open class LinesHelper(
                         simplifyBorders -> douglasPeucker(points, DOUGLAS_PEUCKER_PIXEL_THRESHOLD)
                         else -> points
                     },
-                    isXkcdStyle = ctx.isXkcdStyle
+                    style = ctx.style
                 )
                 decorateFillingPart(path, pathData.aes)
                 path

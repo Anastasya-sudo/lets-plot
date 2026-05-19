@@ -11,6 +11,7 @@ import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.commons.values.Font
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.geom.annotation.Annotation
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.theme.DefaultFontFamilyRegistry
 import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 import org.jetbrains.letsPlot.core.plot.base.tooltip.NullGeomTargetCollector
@@ -21,7 +22,7 @@ import org.jetbrains.letsPlot.core.plot.builder.presentation.PlotLabelSpec
  */
 class EmptyGeomContext : GeomContext {
     override val flipped: Boolean = false
-    override val isXkcdStyle: Boolean = false
+    override val style: GeomStyle = GeomStyle.Regular
     override val targetCollector: GeomTargetCollector = NullGeomTargetCollector
     override val annotation: Annotation? = null
     override val backgroundColor: Color = Color.WHITE

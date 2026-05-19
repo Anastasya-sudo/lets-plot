@@ -8,6 +8,7 @@ package org.jetbrains.letsPlot.core.plot.builder.guide
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.intern.math.toDegrees
 import org.jetbrains.letsPlot.commons.values.Color
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.Label
 import org.jetbrains.letsPlot.core.plot.base.render.svg.StrokeDashArraySupport
 import org.jetbrains.letsPlot.core.plot.base.render.svg.SvgComponent
@@ -29,7 +30,7 @@ class PolarAxisComponent(
     private val breaksData: PolarAxisUtil.PolarBreaksData,
     private val labelAdjustments: AxisComponent.TickLabelAdjustments = AxisComponent.TickLabelAdjustments(orientation),
     private val axisTheme: AxisTheme,
-    private val isXkcdStyle: Boolean = false,
+    private val style: GeomStyle = GeomStyle.Regular,
     private val hideAxisBreaks: Boolean = false,
 ) : SvgComponent() {
     init {
@@ -62,12 +63,12 @@ class PolarAxisComponent(
         if (!hideAxisBreaks && axisTheme.showLine()) {
             if (orientation.isHorizontal) {
                 val axisLine = SvgPathElement().apply {
-                    val axisPoints = if (isXkcdStyle) {
+                    val axisPoints = if (style == GeomStyle.Xkcd) {
                         XkcdPathEffect.toHandDrawn(breaksData.axisLine)
                     } else {
                         breaksData.axisLine
                     }
-                    val axisWidth = if (isXkcdStyle) {
+                    val axisWidth = if (style == GeomStyle.Xkcd) {
                         axisTheme.lineWidth() * XKCD_AXIS_WIDTH_MULTIPLIER
                     } else {
                         axisTheme.lineWidth()
@@ -85,7 +86,7 @@ class PolarAxisComponent(
                 }
                 rootElement.children().add(axisLine)
             } else {
-                val axisLine: SvgNode = if (isXkcdStyle) {
+                val axisLine: SvgNode = if (style == GeomStyle.Xkcd) {
                     val start = breaksData.axisLine[0]
                     val end = breaksData.axisLine[1]
                     val handDrawn = XkcdPathEffect.toHandDrawn(listOf(start, end))
@@ -121,7 +122,7 @@ class PolarAxisComponent(
     ): Pair<Label?, SvgNode?> {
 
         val tickMark: SvgNode? = if (axisTheme.showTickMarks()) {
-            if (isXkcdStyle) {
+            if (style == GeomStyle.Xkcd) {
                 val markLength = axisTheme.tickMarkLength()
                 val (start, end) = when (orientation) {
                     Orientation.LEFT -> DoubleVector(0.0, breakCoord.y) to DoubleVector(-markLength, breakCoord.y)

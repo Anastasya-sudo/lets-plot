@@ -15,6 +15,7 @@ import org.jetbrains.letsPlot.core.plot.base.CoordinateSystem
 import org.jetbrains.letsPlot.core.plot.base.PlotContext
 import org.jetbrains.letsPlot.core.plot.base.Transform
 import org.jetbrains.letsPlot.core.plot.base.coord.TransformedCoordinateSystem
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.StrokeDashArraySupport
 import org.jetbrains.letsPlot.core.plot.base.render.svg.SvgComponent
 import org.jetbrains.letsPlot.core.plot.base.scale.ScaleBreaks
@@ -84,7 +85,7 @@ internal class SquareFrameOfReference(
                 hideAxis = false,
                 hideAxisBreaks = !layoutInfo.vAxisShown,
                 axisTheme = vAxisTheme,
-                isXkcdStyle = theme.isXkcdStyle,
+                style = theme.style,
                 labelAdjustments = labelAdjustments,
                 isDebugDrawing = isDebugDrawing,
             )
@@ -115,7 +116,7 @@ internal class SquareFrameOfReference(
                 hideAxis = false,
                 hideAxisBreaks = !layoutInfo.hAxisShown,
                 axisTheme = hAxisTheme,
-                isXkcdStyle = theme.isXkcdStyle,
+                style = theme.style,
                 labelAdjustments = labelAdjustments,
                 isDebugDrawing = isDebugDrawing,
             )
@@ -145,7 +146,7 @@ internal class SquareFrameOfReference(
                 minorGrid = breaksData.minorGrid,
                 isHorizontal = true,
                 isOrthogonal = true,
-                isXkcdStyle = theme.isXkcdStyle,
+                style = theme.style,
                 geomContentBounds = layoutInfo.geomContentBounds,
                 gridTheme = gridTheme,
                 panelTheme = theme.panel(),
@@ -170,7 +171,7 @@ internal class SquareFrameOfReference(
                 minorGrid = breaksData.minorGrid,
                 isHorizontal = false,
                 isOrthogonal = true,
-                isXkcdStyle = theme.isXkcdStyle,
+                style = theme.style,
                 geomContentBounds = layoutInfo.geomContentBounds,
                 gridTheme = gridTheme,
                 panelTheme = theme.panel(),
@@ -246,7 +247,7 @@ internal class SquareFrameOfReference(
             hideAxis: Boolean,
             hideAxisBreaks: Boolean,
             axisTheme: AxisTheme,
-            isXkcdStyle: Boolean,
+            style: GeomStyle,
             labelAdjustments: TickLabelAdjustments,
             isDebugDrawing: Boolean,
         ): SvgComponent {
@@ -256,7 +257,7 @@ internal class SquareFrameOfReference(
                 breaksData = breaksData,
                 labelAdjustments = labelAdjustments,
                 axisTheme = axisTheme,
-                isXkcdStyle = isXkcdStyle,
+                style = style,
                 hideAxis = hideAxis,
                 hideAxisBreaks = hideAxisBreaks
             )

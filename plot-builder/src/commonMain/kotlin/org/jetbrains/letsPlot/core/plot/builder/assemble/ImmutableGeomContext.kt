@@ -9,6 +9,7 @@ import org.jetbrains.letsPlot.commons.geometry.DoubleRectangle
 import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.geom.annotation.Annotation
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.theme.FontFamilyRegistry
 import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 
@@ -19,7 +20,7 @@ interface ImmutableGeomContext : GeomContext {
     interface Builder {
         fun flipped(flipped: Boolean): Builder
 
-        fun xkcdStyle(isXkcdStyle: Boolean): Builder
+        fun style(style: GeomStyle): Builder
 
         fun aesthetics(aesthetics: Aesthetics): Builder
 
