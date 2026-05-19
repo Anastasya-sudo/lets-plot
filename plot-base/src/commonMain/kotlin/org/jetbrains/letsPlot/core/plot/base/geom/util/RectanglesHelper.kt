@@ -11,13 +11,10 @@ import org.jetbrains.letsPlot.commons.intern.typedGeometry.algorithms.AdaptiveRe
 import org.jetbrains.letsPlot.commons.intern.typedGeometry.algorithms.AdaptiveResampler.Companion.resample
 import org.jetbrains.letsPlot.core.commons.geometry.PolylineSimplifier
 import org.jetbrains.letsPlot.core.plot.base.*
-import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
-import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgNode
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathDataBuilder
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathElement
-import org.jetbrains.letsPlot.datamodel.svg.dom.SvgRectElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.slim.SvgSlimElements
 import org.jetbrains.letsPlot.datamodel.svg.dom.slim.SvgSlimGroup
 
@@ -56,27 +53,11 @@ class RectanglesHelper(
         myAesthetics.dataPoints().forEach { p ->
             geometryFactory(p)?.let { rect ->
                 val clientRect = toClient(rect, p) ?: return@let
-                // TODO: regular style builds a true <rect> here; collapse via the geometry-primitive factory
-                if (ctx.style == GeomStyle.Xkcd) {
-                    val handDrawnRect = XkcdPathEffect.toHandDrawn(
-                        listOf(
-                            DoubleVector(clientRect.left, clientRect.top),
-                            DoubleVector(clientRect.right, clientRect.top),
-                            DoubleVector(clientRect.right, clientRect.bottom),
-                            DoubleVector(clientRect.left, clientRect.bottom),
-                            DoubleVector(clientRect.left, clientRect.top)
-                        )
-                    )
-                    val svgPath = SvgPathElement().apply {
-                        d().set(SvgPathDataBuilder().lineString(handDrawnRect).build())
-                    }
-                    decorate(svgPath, p)
-                    handler(p, svgPath, clientRect)
-                } else {
-                    val svgRect = SvgRectElement(clientRect)
-                    decorate(svgRect, p)
-                    handler(p, svgRect, clientRect)
+                val svgPath = SvgPathElement().apply {
+                    d().set(SvgPathDataBuilder().lineString(ctx.style.rectangle(clientRect)).build())
                 }
+                decorate(svgPath, p)
+                handler(p, svgPath, clientRect)
             }
         }
     }
@@ -88,27 +69,11 @@ class RectanglesHelper(
             val p = myAesthetics.dataPointAt(index)
             val clientRect = geometryFactory(p) ?: continue
 
-            // TODO: regular style builds a true <rect> here; collapse via the geometry-primitive factory
-            if (ctx.style == GeomStyle.Xkcd) {
-                val handDrawnRect = XkcdPathEffect.toHandDrawn(
-                    listOf(
-                        DoubleVector(clientRect.left, clientRect.top),
-                        DoubleVector(clientRect.right, clientRect.top),
-                        DoubleVector(clientRect.right, clientRect.bottom),
-                        DoubleVector(clientRect.left, clientRect.bottom),
-                        DoubleVector(clientRect.left, clientRect.top)
-                    )
-                )
-                val svgPath = SvgPathElement().apply {
-                    d().set(SvgPathDataBuilder().lineString(handDrawnRect).build())
-                }
-                decorate(svgPath, p)
-                result.add(svgPath)
-            } else {
-                val svgRect = SvgRectElement(clientRect)
-                decorate(svgRect, p)
-                result.add(svgRect)
+            val svgPath = SvgPathElement().apply {
+                d().set(SvgPathDataBuilder().lineString(ctx.style.rectangle(clientRect)).build())
             }
+            decorate(svgPath, p)
+            result.add(svgPath)
         }
 
         return result
@@ -174,25 +139,10 @@ class RectanglesHelper(
 
                     onGeometry(p, clientRect, null)
 
-                    // TODO: regular style builds a true <rect> here; collapse via the geometry-primitive factory
-                    if (ctx.style == GeomStyle.Xkcd) {
-                        val handDrawnRect = XkcdPathEffect.toHandDrawn(
-                            listOf(
-                                DoubleVector(clientRect.left, clientRect.top),
-                                DoubleVector(clientRect.right, clientRect.top),
-                                DoubleVector(clientRect.right, clientRect.bottom),
-                                DoubleVector(clientRect.left, clientRect.bottom),
-                                DoubleVector(clientRect.left, clientRect.top)
-                            )
-                        )
-                        val slimShape = SvgSlimElements.path(SvgPathDataBuilder().lineString(handDrawnRect).build())
-                        decorateSlimShape(slimShape, p)
-                        slimShape.appendTo(group)
-                    } else {
-                        val slimShape = SvgSlimElements.rect(clientRect.left, clientRect.top, clientRect.width, clientRect.height)
-                        decorateSlimShape(slimShape, p)
-                        slimShape.appendTo(group)
-                    }
+                    val polyRect = ctx.style.rectangle(clientRect)
+                    val slimShape = SvgSlimElements.path(SvgPathDataBuilder().lineString(polyRect).build())
+                    decorateSlimShape(slimShape, p)
+                    slimShape.appendTo(group)
                 }
 
             }
