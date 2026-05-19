@@ -215,7 +215,6 @@ object ThemeOption {
 
     object Style {
         const val NAME = "name"
-        const val NONE = "none"
         const val XKCD = "xkcd"
     }
 

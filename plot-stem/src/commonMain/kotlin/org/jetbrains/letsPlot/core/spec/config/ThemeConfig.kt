@@ -314,9 +314,9 @@ class ThemeConfig constructor(
         private fun normalizeStyleName(value: String): String {
             val normalized = value.lowercase()
             return when (normalized) {
-                ThemeOption.Style.NONE, ThemeOption.Style.XKCD -> normalized
+                ThemeOption.Style.XKCD -> normalized
                 else -> throw IllegalArgumentException(
-                    "Illegal value: '$value', ${ThemeOption.STYLE}. Expected values are: '${ThemeOption.Style.NONE}' or '${ThemeOption.Style.XKCD}'."
+                    "Illegal value: '$value', ${ThemeOption.STYLE}. Expected value: '${ThemeOption.Style.XKCD}'."
                 )
             }
         }

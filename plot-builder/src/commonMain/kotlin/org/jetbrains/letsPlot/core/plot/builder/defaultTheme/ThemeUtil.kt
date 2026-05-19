@@ -86,10 +86,9 @@ object ThemeUtil {
         }.lowercase()
 
         return when (styleName) {
-            ThemeOption.Style.NONE -> emptyMap()
             ThemeOption.Style.XKCD -> ThemeStyleOverrides.XKCD
             else -> throw IllegalArgumentException(
-                "Illegal value: '$styleName', ${ThemeOption.STYLE}. Expected values are: '${ThemeOption.Style.NONE}' or '${ThemeOption.Style.XKCD}'."
+                "Illegal value: '$styleName', ${ThemeOption.STYLE}. Expected value: '${ThemeOption.Style.XKCD}'."
             )
         }
     }
