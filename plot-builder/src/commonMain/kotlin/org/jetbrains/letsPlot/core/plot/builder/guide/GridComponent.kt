@@ -13,7 +13,6 @@ import org.jetbrains.letsPlot.core.plot.base.render.linetype.LineType
 import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.StrokeDashArraySupport
 import org.jetbrains.letsPlot.core.plot.base.render.svg.SvgComponent
-import org.jetbrains.letsPlot.core.plot.base.render.svg.XkcdPathEffect
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.core.plot.base.theme.PanelGridTheme
 import org.jetbrains.letsPlot.core.plot.base.theme.PanelTheme
@@ -102,15 +101,11 @@ class GridComponent constructor(
         color: Color,
         lineType: LineType
     ): SvgNode {
-        val shapeElem: SvgShape = if (style == GeomStyle.Xkcd) {
-            val handDrawn = XkcdPathEffect.toHandDrawn(lineString)
-            SvgPathElement(SvgPathDataBuilder().lineString(handDrawn).build())
-        } else {
-            when {
-                lineString.size == 2 -> SvgLineElement(lineString[0].x, lineString[0].y, lineString[1].x, lineString[1].y)
-                lineString.size > 2 -> SvgPathElement(SvgPathDataBuilder().lineString(lineString).build())
-                else -> SvgPathElement()
-            }
+        val points = style.resamplePath(lineString)
+        val shapeElem: SvgShape = when {
+            points.size == 2 -> SvgLineElement(points[0].x, points[0].y, points[1].x, points[1].y)
+            points.size > 2 -> SvgPathElement(SvgPathDataBuilder().lineString(points).build())
+            else -> SvgPathElement()
         }
 
         shapeElem.strokeColor().set(color)
