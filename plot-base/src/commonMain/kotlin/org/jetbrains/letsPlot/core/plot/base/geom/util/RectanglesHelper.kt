@@ -54,7 +54,7 @@ class RectanglesHelper(
             geometryFactory(p)?.let { rect ->
                 val clientRect = toClient(rect, p) ?: return@let
                 val svgPath = SvgPathElement().apply {
-                    d().set(SvgPathDataBuilder().lineString(ctx.style.rectangle(clientRect)).build())
+                    d().set(SvgPathDataBuilder().lineString(ctx.style.resampleRectangle(clientRect)).build())
                 }
                 decorate(svgPath, p)
                 handler(p, svgPath, clientRect)
@@ -70,7 +70,7 @@ class RectanglesHelper(
             val clientRect = geometryFactory(p) ?: continue
 
             val svgPath = SvgPathElement().apply {
-                d().set(SvgPathDataBuilder().lineString(ctx.style.rectangle(clientRect)).build())
+                d().set(SvgPathDataBuilder().lineString(ctx.style.resampleRectangle(clientRect)).build())
             }
             decorate(svgPath, p)
             result.add(svgPath)
@@ -139,7 +139,7 @@ class RectanglesHelper(
 
                     onGeometry(p, clientRect, null)
 
-                    val polyRect = ctx.style.rectangle(clientRect)
+                    val polyRect = ctx.style.resampleRectangle(clientRect)
                     val slimShape = SvgSlimElements.path(SvgPathDataBuilder().lineString(polyRect).build())
                     decorateSlimShape(slimShape, p)
                     slimShape.appendTo(group)

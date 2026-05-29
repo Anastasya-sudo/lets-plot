@@ -15,10 +15,10 @@ import kotlin.math.sin
 interface GeomStyle {
     fun resamplePath(points: List<DoubleVector>): List<DoubleVector>
 
-    fun rectangle(rect: DoubleRectangle): List<DoubleVector> =
+    fun resampleRectangle(rect: DoubleRectangle): List<DoubleVector> =
         resamplePath(rectanglePoints(rect))
 
-    fun circle(center: DoubleVector, radius: Double): List<DoubleVector> =
+    fun resampleCircle(center: DoubleVector, radius: Double): List<DoubleVector> =
         resamplePath(approximateCircle(center, radius))
 
     object Regular : GeomStyle {

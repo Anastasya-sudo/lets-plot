@@ -209,7 +209,7 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
 
             val path = LinePath(
                 SvgPathDataBuilder().apply {
-                    lineString(style.circle(center, radius))
+                    lineString(style.resampleCircle(center, radius))
                     closePath()
                 }
             )
