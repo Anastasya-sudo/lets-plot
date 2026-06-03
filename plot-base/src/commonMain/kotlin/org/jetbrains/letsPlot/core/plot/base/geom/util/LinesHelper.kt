@@ -318,29 +318,33 @@ open class LinesHelper(
      * Fills the shape and returns the node to put into the SVG tree.
      *
      * If [style] produces no scribble (the regular case) the [path] is filled with a solid color,
-     * exactly as before. Otherwise the outline is left unfilled and the inside is drawn as a set of
-     * separate strokes, all wrapped together in a group.
+     * exactly as before. Otherwise the inside is drawn as a set of separate strokes wrapped in a group.
+     *
+     * Set [outlined] to false for shapes that draw their border separately (e.g. bands): then the solid
+     * case fills without stroking the outline, and the scribble case returns the strokes alone.
      */
     fun decorateFilled(
         path: LinePath,
         boundary: List<DoubleVector>,
         p: DataPointAesthetics,
         style: GeomStyle,
+        outlined: Boolean = true,
         strokeScaler: (DataPointAesthetics) -> Double = AesScaling::strokeWidth
     ): SvgNode {
         val scribble = style.fillScribble(boundary)
         if (scribble.isEmpty()) {
-            decorate(path, p, filled = true, strokeScaler)
+            if (outlined) decorate(path, p, filled = true, strokeScaler) else decorateFillingPart(path, p)
             return path.rootGroup
         }
 
-        decorate(path, p, filled = false, strokeScaler)
+        val group = SvgGElement()
+        if (outlined) {
+            decorate(path, p, filled = false, strokeScaler)
+            group.children().add(path.rootGroup)
+        }
 
         val fill = p.fill()!!
         val fillColor = withOpacity(fill, AestheticsUtil.alpha(fill, p))
-
-        val group = SvgGElement()
-        group.children().add(path.rootGroup)
         for (stroke in scribble) {
             val strokePath = LinePath.line(stroke)
             strokePath.color().set(fillColor)
