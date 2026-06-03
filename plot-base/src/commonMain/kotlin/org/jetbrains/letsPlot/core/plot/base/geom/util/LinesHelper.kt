@@ -125,8 +125,7 @@ open class LinesHelper(
                 .let(::insertPathSeparators)
                 .let { LinePath.polygon(it, style = ctx.style) }
 
-            decorate(element, polygon.aes, filled = true)
-            element.rootGroup
+            decorateFilled(element, polygon.coordinates.first(), polygon.aes, ctx.style)
         }
 
         return svg.zip(clientPolygonData)
