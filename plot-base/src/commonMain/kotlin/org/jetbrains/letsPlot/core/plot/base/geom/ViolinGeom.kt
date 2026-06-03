@@ -61,7 +61,7 @@ class ViolinGeom : GeomBase() {
 
         quantilesHelper.splitByQuantiles(dataPoints, Aes.Y).forEach { points ->
             val paths = helper.createBands(points, leftBoundTransform, rightBoundTransform)
-            root.appendNodes(paths)
+            paths.forEach { root.add(it) }
 
             helper.setAlphaEnabled(false)
             root.appendNodes(helper.createLines(points, leftBoundTransform))

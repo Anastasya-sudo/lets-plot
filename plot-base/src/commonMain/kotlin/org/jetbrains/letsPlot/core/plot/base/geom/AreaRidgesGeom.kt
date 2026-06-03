@@ -77,7 +77,7 @@ class AreaRidgesGeom : GeomBase(), WithHeight {
                 GeomUtil.TO_LOCATION_X_Y,
                 simplifyBorders = true
             )
-            root.appendNodes(paths)
+            paths.forEach { root.add(it) }
 
             helper.setAlphaEnabled(false)
             root.appendNodes(helper.createLines(points, boundTransform))

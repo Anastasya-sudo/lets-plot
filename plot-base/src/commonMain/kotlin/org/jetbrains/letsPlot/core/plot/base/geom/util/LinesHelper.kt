@@ -218,7 +218,7 @@ open class LinesHelper(
         toLocationUpper: (DataPointAesthetics) -> DoubleVector?,
         toLocationLower: (DataPointAesthetics) -> DoubleVector?,
         simplifyBorders: Boolean = false
-    ): List<LinePath> {
+    ): List<SvgNode> {
         return renderBands(dataPoints, toLocationUpper, toLocationLower, simplifyBorders, closePath = false)
     }
 
@@ -228,7 +228,7 @@ open class LinesHelper(
         toLocationLower: (DataPointAesthetics) -> DoubleVector?,
         simplifyBorders: Boolean,
         closePath: Boolean
-    ): List<LinePath> {
+    ): List<SvgNode> {
         val domainUpperPathData = createPaths(dataPoints, toLocationUpper, sorted = true, closePath, nullsCounter = counter)
         val domainLowerPathData = createPaths(dataPoints, toLocationLower, sorted = true, closePath, nullsCounter = counter)
 
@@ -257,8 +257,7 @@ open class LinesHelper(
                     },
                     style = ctx.style
                 )
-                decorateFillingPart(path, pathData.aes)
-                path
+                decorateFilled(path, points, pathData.aes, ctx.style, outlined = false)
             } else {
                 null
             }

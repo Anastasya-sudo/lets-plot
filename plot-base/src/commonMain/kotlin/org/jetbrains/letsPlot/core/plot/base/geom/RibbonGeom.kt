@@ -37,7 +37,7 @@ class RibbonGeom : GeomBase() {
         val helper = LinesHelper(pos, coord, ctx)
 
         val paths = helper.createBands(dataPoints, TO_LOCATION_X_YMAX_WITH_FINITE_YMIN, TO_LOCATION_X_YMIN_WITH_FINITE_YMAX)
-        root.appendNodes(paths)
+        paths.forEach { root.add(it) }
 
         //if you want to retain the side edges of ribbon:
         //comment out the following codes, and switch decorate method in LinesHelper.createBands

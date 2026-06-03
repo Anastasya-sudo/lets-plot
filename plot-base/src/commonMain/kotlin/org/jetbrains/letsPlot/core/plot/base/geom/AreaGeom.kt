@@ -59,7 +59,7 @@ open class AreaGeom : GeomBase() {
                         simplifyBorders = false,
                         closePath = closePath
                     )
-                    root.appendNodes(bands)
+                    bands.forEach { root.add(it) }
 
                     val upperPoints = helper.createPathData(points, TO_LOCATION_X_Y, closePath)
 
