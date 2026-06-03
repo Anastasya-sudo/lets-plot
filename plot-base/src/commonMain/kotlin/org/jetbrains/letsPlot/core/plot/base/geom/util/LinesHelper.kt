@@ -18,7 +18,9 @@ import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
 import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil.createPathDataFromRectangle
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil.createPaths
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
+import org.jetbrains.letsPlot.datamodel.svg.dom.SvgGElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgNode
 
 open class LinesHelper(
@@ -311,6 +313,40 @@ open class LinesHelper(
 
         val lineType = p.lineType()
         path.lineType().set(lineType)
+    }
+
+    /**
+     * Fills the shape and returns the node to put into the SVG tree.
+     *
+     * If [style] produces no scribble (the regular case) the [path] is filled with a solid color,
+     * exactly as before. Otherwise the outline is left unfilled and the inside is drawn as a set of
+     * separate strokes, all wrapped together in a group.
+     */
+    fun decorateFilled(
+        path: LinePath,
+        boundary: List<DoubleVector>,
+        p: DataPointAesthetics,
+        style: GeomStyle
+    ): SvgNode {
+        val scribble = style.fillScribble(boundary)
+        if (scribble.isEmpty()) {
+            decorate(path, p, filled = true)
+            return path.rootGroup
+        }
+
+        decorate(path, p, filled = false)
+
+        val fill = p.fill()!!
+        val fillColor = withOpacity(fill, AestheticsUtil.alpha(fill, p))
+
+        val group = SvgGElement()
+        group.children().add(path.rootGroup)
+        for (stroke in scribble) {
+            val strokePath = LinePath.line(stroke)
+            strokePath.color().set(fillColor)
+            group.children().add(strokePath.rootGroup)
+        }
+        return group
     }
 
     private fun decorateFillingPart(path: LinePath, p: DataPointAesthetics) {
