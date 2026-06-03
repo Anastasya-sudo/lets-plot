@@ -325,15 +325,16 @@ open class LinesHelper(
         path: LinePath,
         boundary: List<DoubleVector>,
         p: DataPointAesthetics,
-        style: GeomStyle
+        style: GeomStyle,
+        strokeScaler: (DataPointAesthetics) -> Double = AesScaling::strokeWidth
     ): SvgNode {
         val scribble = style.fillScribble(boundary)
         if (scribble.isEmpty()) {
-            decorate(path, p, filled = true)
+            decorate(path, p, filled = true, strokeScaler)
             return path.rootGroup
         }
 
-        decorate(path, p, filled = false)
+        decorate(path, p, filled = false, strokeScaler)
 
         val fill = p.fill()!!
         val fillColor = withOpacity(fill, AestheticsUtil.alpha(fill, p))
