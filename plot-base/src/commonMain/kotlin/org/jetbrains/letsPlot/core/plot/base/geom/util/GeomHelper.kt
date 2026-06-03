@@ -14,6 +14,7 @@ import org.jetbrains.letsPlot.commons.intern.util.ArrowSupport
 import org.jetbrains.letsPlot.commons.intern.util.curve
 import org.jetbrains.letsPlot.commons.intern.util.padLineString
 import org.jetbrains.letsPlot.commons.values.Color
+import org.jetbrains.letsPlot.commons.values.Colors
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
 import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil
@@ -396,6 +397,42 @@ open class GeomHelper(
             val strokeWidth = strokeScaler(p)
             shape.strokeWidth().set(strokeWidth)
             StrokeDashArraySupport.apply(shape, strokeWidth, p.lineType())
+        }
+
+        /**
+         * The SvgShape counterpart of LinesHelper.decorateFilled.
+         *
+         * No scribble (regular case): [shape] is filled with a solid color, as before.
+         * Scribble (xkcd): [shape] keeps its border but no solid fill; border and the scribble
+         * strokes are returned together in a group.
+         */
+        fun decorateFilled(
+            shape: SvgPathElement,
+            boundary: List<DoubleVector>,
+            p: DataPointAesthetics,
+            style: GeomStyle
+        ): SvgNode {
+            val scribble = style.fillScribble(boundary)
+            if (scribble.isEmpty()) {
+                decorate(shape, p)
+                return shape
+            }
+
+            decorate(shape, p, filled = false)
+
+            val fill = p.fill()!!
+            val fillColor = Colors.withOpacity(fill, AestheticsUtil.alpha(fill, p))
+
+            val group = SvgGElement()
+            group.children().add(shape)
+            for (stroke in scribble) {
+                val strokePath = SvgPathElement(SvgPathDataBuilder().lineString(stroke).build())
+                strokePath.fill().set(SvgColors.NONE)
+                strokePath.strokeColor().set(fillColor)
+                strokePath.strokeWidth().set(1.0)
+                group.children().add(strokePath)
+            }
+            return group
         }
 
         internal fun decorateSlimShape(

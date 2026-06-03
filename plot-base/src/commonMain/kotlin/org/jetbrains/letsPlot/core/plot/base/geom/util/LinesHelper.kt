@@ -316,11 +316,12 @@ open class LinesHelper(
     /**
      * Fills the shape and returns the node to put into the SVG tree.
      *
-     * If [style] produces no scribble (the regular case) the [path] is filled with a solid color,
-     * exactly as before. Otherwise the inside is drawn as a set of separate strokes wrapped in a group.
+     * No scribble (regular case): [path] is filled with a solid color, as before.
+     * Scribble (xkcd): the inside is drawn as separate strokes, returned in a group together with the
+     * border (unless [outlined] is false).
      *
-     * Set [outlined] to false for shapes that draw their border separately (e.g. bands): then the solid
-     * case fills without stroking the outline, and the scribble case returns the strokes alone.
+     * Set [outlined] to false for shapes that draw their border separately (e.g. bands): the solid case
+     * then fills without stroking the outline, and the scribble case returns the strokes alone.
      */
     fun decorateFilled(
         path: LinePath,
