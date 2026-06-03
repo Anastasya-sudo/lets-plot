@@ -202,6 +202,7 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
             return DoubleVector(x, y)
         }
 
+        // TODO: no scribble fill yet - should come through PointShape, not be duplicated here.
         private fun createCircleCandy(shape: NamedShape, center: DoubleVector, style: GeomStyle): SvgGElement {
             val radius = shape.size(point, fatten) / 2.0
             if (!radius.isFinite() || radius <= 0.0) {
