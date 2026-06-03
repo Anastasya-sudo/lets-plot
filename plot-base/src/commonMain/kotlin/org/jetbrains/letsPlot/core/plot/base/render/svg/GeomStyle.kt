@@ -21,6 +21,8 @@ interface GeomStyle {
     fun resampleCircle(center: DoubleVector, radius: Double): List<DoubleVector> =
         resamplePath(approximateCircle(center, radius))
 
+    fun fillScribble(boundary: List<DoubleVector>): List<List<DoubleVector>> = emptyList()
+
     object Regular : GeomStyle {
         override fun resamplePath(points: List<DoubleVector>): List<DoubleVector> = points
     }
@@ -28,6 +30,9 @@ interface GeomStyle {
     object Xkcd : GeomStyle {
         override fun resamplePath(points: List<DoubleVector>): List<DoubleVector> =
             XkcdPathEffect.toHandDrawn(points)
+
+        override fun fillScribble(boundary: List<DoubleVector>): List<List<DoubleVector>> =
+            FillPattern.CrossHatch.generate(boundary).map { resamplePath(it) }
     }
 }
 
