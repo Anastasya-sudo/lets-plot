@@ -43,8 +43,7 @@ class RectanglesHelper(
                 val svgPoly = SvgPathElement()
                 svgPoly.d().set(SvgPathDataBuilder().lineString(polyRect).build())
 
-                decorate(svgPoly, p)
-                handler(p, svgPoly, polyRect)
+                handler(p, decorateFilled(svgPoly, polyRect, p, ctx.style), polyRect)
             }
         }
     }
@@ -53,11 +52,12 @@ class RectanglesHelper(
         myAesthetics.dataPoints().forEach { p ->
             geometryFactory(p)?.let { rect ->
                 val clientRect = toClient(rect, p) ?: return@let
+                val rectPoints = ctx.style.resampleRectangle(clientRect)
                 val svgPath = SvgPathElement().apply {
-                    d().set(SvgPathDataBuilder().lineString(ctx.style.resampleRectangle(clientRect)).build())
+                    d().set(SvgPathDataBuilder().lineString(rectPoints).build())
                 }
-                decorate(svgPath, p)
-                handler(p, svgPath, clientRect)
+                val node = decorateFilled(svgPath, rectPoints, p, ctx.style)
+                handler(p, node, clientRect)
             }
         }
     }
@@ -69,11 +69,11 @@ class RectanglesHelper(
             val p = myAesthetics.dataPointAt(index)
             val clientRect = geometryFactory(p) ?: continue
 
+            val rectPoints = ctx.style.resampleRectangle(clientRect)
             val svgPath = SvgPathElement().apply {
-                d().set(SvgPathDataBuilder().lineString(ctx.style.resampleRectangle(clientRect)).build())
+                d().set(SvgPathDataBuilder().lineString(rectPoints).build())
             }
-            decorate(svgPath, p)
-            result.add(svgPath)
+            result.add(decorateFilled(svgPath, rectPoints, p, ctx.style))
         }
 
         return result
