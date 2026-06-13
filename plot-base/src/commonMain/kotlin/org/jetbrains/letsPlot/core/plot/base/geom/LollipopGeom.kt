@@ -158,7 +158,7 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
             val location = helper.toClient(head, point)!!
             val shape = point.shape()!!
             // TODO: direct style-type check breaks GeomStyle abstraction; remove once PointShape goes polyline.
-            if (style == GeomStyle.Xkcd && shape is NamedShape && shape.isCircleCandyShape()) {
+            if (style is GeomStyle.Xkcd && shape is NamedShape && shape.isCircleCandyShape()) {
                 return createCircleCandy(shape, location, style)
             }
             return wrap(PointShapeSvg.create(shape, location, point, fatten))

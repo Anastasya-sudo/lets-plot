@@ -216,6 +216,10 @@ object ThemeOption {
     object Style {
         const val NAME = "name"
         const val XKCD = "xkcd"
+
+        const val FILL = "fill"
+        const val CROSS = "cross"
+        const val SOLID = "solid"
     }
 
     object Geom {

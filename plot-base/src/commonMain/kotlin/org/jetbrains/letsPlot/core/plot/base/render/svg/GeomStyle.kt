@@ -27,12 +27,12 @@ interface GeomStyle {
         override fun resamplePath(points: List<DoubleVector>): List<DoubleVector> = points
     }
 
-    object Xkcd : GeomStyle {
+    class Xkcd(private val fillPattern: FillPattern = FillPattern.CrossHatch) : GeomStyle {
         override fun resamplePath(points: List<DoubleVector>): List<DoubleVector> =
             XkcdPathEffect.toHandDrawn(points)
 
         override fun fillScribble(boundary: List<DoubleVector>): List<List<DoubleVector>> =
-            FillPattern.CrossHatch.generate(boundary).map { resamplePath(it) }
+            fillPattern.generate(boundary).map { resamplePath(it) }
     }
 }
 

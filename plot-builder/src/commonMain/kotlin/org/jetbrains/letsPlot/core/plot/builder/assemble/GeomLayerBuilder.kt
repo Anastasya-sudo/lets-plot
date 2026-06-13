@@ -309,7 +309,7 @@ class GeomLayerBuilder(
                     aestheticsDefaults
                 }
 
-                if (style == GeomStyle.Xkcd && geomKind in XKCD_TEXT_GEOMS) {
+                if (style is GeomStyle.Xkcd && geomKind in XKCD_TEXT_GEOMS) {
                     defaults.with(Aes.FAMILY, XKCD_TEXT_FAMILY)
                 } else {
                     defaults

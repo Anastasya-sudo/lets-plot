@@ -420,7 +420,10 @@ def theme(*,
     style : {'none', 'xkcd'} or dict
         Built-in rendering style mode.
         Set ``'xkcd'`` to enable hand-drawn style rendering, or ``'none'`` for standard rendering.
-        A dict form is also supported for forward compatibility, for example: ``{'name': 'xkcd'}``.
+        A dict form is also supported, for example: ``{'name': 'xkcd'}``.
+        With the ``'xkcd'`` style, a ``'fill'`` key selects how filled shapes are drawn:
+        ``'cross'`` for hand-drawn cross-hatching (default) or ``'solid'`` for a flat fill,
+        for example: ``{'name': 'xkcd', 'fill': 'solid'}``.
 
     Returns
     -------
@@ -503,6 +506,14 @@ def _validate_style(style):
         raise ValueError(
             f"Unknown style: {style!r}. Supported values are: {sorted(supported_styles)}."
         )
+
+    if isinstance(style, dict) and 'fill' in style:
+        fill = style['fill']
+        supported_fills = {'cross', 'solid'}
+        if not isinstance(fill, str) or fill.lower() not in supported_fills:
+            raise ValueError(
+                f"Unknown fill: {fill!r}. Supported values are: {sorted(supported_fills)}."
+            )
 
 
 def _filter_none(original: dict) -> dict:
