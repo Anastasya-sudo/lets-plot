@@ -348,6 +348,7 @@ open class LinesHelper(
         for (stroke in scribble) {
             val strokePath = LinePath.line(stroke)
             strokePath.color().set(fillColor)
+            strokePath.width().set(SCRIBBLE_STROKE_WIDTH)
             group.children().add(strokePath.rootGroup)
         }
         return group

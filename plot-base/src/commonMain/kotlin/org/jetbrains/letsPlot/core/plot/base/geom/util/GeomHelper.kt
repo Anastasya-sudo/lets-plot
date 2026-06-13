@@ -381,6 +381,8 @@ open class GeomHelper(
     }
 
     companion object {
+        const val SCRIBBLE_STROKE_WIDTH = 1.0
+
         fun decorate(
             shape: SvgShape,
             p: DataPointAesthetics,
@@ -429,7 +431,7 @@ open class GeomHelper(
                 val strokePath = SvgPathElement(SvgPathDataBuilder().lineString(stroke).build())
                 strokePath.fill().set(SvgColors.NONE)
                 strokePath.strokeColor().set(fillColor)
-                strokePath.strokeWidth().set(1.0)
+                strokePath.strokeWidth().set(SCRIBBLE_STROKE_WIDTH)
                 group.children().add(strokePath)
             }
             return group
