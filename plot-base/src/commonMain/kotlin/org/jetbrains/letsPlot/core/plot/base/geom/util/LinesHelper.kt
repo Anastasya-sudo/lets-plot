@@ -20,7 +20,6 @@ import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil.createPathDataFr
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil.createPaths
 import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
-import org.jetbrains.letsPlot.datamodel.svg.dom.SvgGElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgNode
 
 open class LinesHelper(
@@ -337,21 +336,16 @@ open class LinesHelper(
             return path.rootGroup
         }
 
-        val group = SvgGElement()
-        if (outlined) {
+        val border = if (outlined) {
             decorate(path, p, filled = false, strokeScaler)
-            group.children().add(path.rootGroup)
+            path.rootGroup
+        } else {
+            null
         }
 
         val fill = p.fill()!!
         val fillColor = withOpacity(fill, AestheticsUtil.alpha(fill, p))
-        for (stroke in scribble) {
-            val strokePath = LinePath.line(stroke)
-            strokePath.color().set(fillColor)
-            strokePath.width().set(SCRIBBLE_STROKE_WIDTH)
-            group.children().add(strokePath.rootGroup)
-        }
-        return group
+        return scribbleGroup(border, scribble, fillColor)
     }
 
     private fun decorateFillingPart(path: LinePath, p: DataPointAesthetics) {

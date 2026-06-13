@@ -24,6 +24,7 @@ import org.jetbrains.letsPlot.core.plot.base.geom.DimensionUnit.*
 import org.jetbrains.letsPlot.core.plot.base.geom.util.ArrowSpec.Companion.toArrowAes
 import org.jetbrains.letsPlot.core.plot.base.geom.util.ArrowSpec.Type.CLOSED
 import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
+import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
 import org.jetbrains.letsPlot.core.plot.base.render.svg.StrokeDashArraySupport
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.datamodel.svg.dom.*
@@ -424,15 +425,25 @@ open class GeomHelper(
 
             val fill = p.fill()!!
             val fillColor = Colors.withOpacity(fill, AestheticsUtil.alpha(fill, p))
+            return scribbleGroup(shape, scribble, fillColor)
+        }
 
+        /**
+         * Wraps the optional [border] node and the [scribble] strokes (each styled with [fillColor]
+         * and [SCRIBBLE_STROKE_WIDTH]) into a single group. Shared by both decorateFilled variants.
+         */
+        internal fun scribbleGroup(
+            border: SvgNode?,
+            scribble: List<List<DoubleVector>>,
+            fillColor: Color
+        ): SvgGElement {
             val group = SvgGElement()
-            group.children().add(shape)
+            border?.let { group.children().add(it) }
             for (stroke in scribble) {
-                val strokePath = SvgPathElement(SvgPathDataBuilder().lineString(stroke).build())
-                strokePath.fill().set(SvgColors.NONE)
-                strokePath.strokeColor().set(fillColor)
-                strokePath.strokeWidth().set(SCRIBBLE_STROKE_WIDTH)
-                group.children().add(strokePath)
+                val strokePath = LinePath.line(stroke)
+                strokePath.color().set(fillColor)
+                strokePath.width().set(SCRIBBLE_STROKE_WIDTH)
+                group.children().add(strokePath.rootGroup)
             }
             return group
         }
