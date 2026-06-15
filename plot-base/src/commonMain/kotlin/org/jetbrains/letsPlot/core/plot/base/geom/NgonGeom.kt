@@ -72,11 +72,11 @@ class NgonGeom : GeomBase() {
             val polygonPoints = polygon(clientCenter, radius, sideCount)
 
             val path = LinePath.polygon(polygonPoints, style = ctx.style)
-            linesHelper.decorate(path, p, filled = true) {
+            val node = linesHelper.decorateFilled(path, polygonPoints, p, ctx.style) {
                 AesScaling.strokeWidth(it, DataPointAesthetics::stroke)
             }
 
-            root.add(path.rootGroup)
+            root.add(node)
             val tooltipRadius = radius + AesScaling.strokeWidth(p, DataPointAesthetics::stroke) / 2.0
             targetCollector.addPoint(
                 index = p.index(),

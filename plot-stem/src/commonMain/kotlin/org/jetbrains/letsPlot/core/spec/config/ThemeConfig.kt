@@ -308,7 +308,15 @@ class ThemeConfig constructor(
                 )
             }
 
-            return mapOf(ThemeOption.Style.NAME to normalizedName)
+            val fillName = (value as? Map<*, *>)?.get(ThemeOption.Style.FILL) as? String
+            return if (fillName != null) {
+                mapOf(
+                    ThemeOption.Style.NAME to normalizedName,
+                    ThemeOption.Style.FILL to normalizeFillName(fillName)
+                )
+            } else {
+                mapOf(ThemeOption.Style.NAME to normalizedName)
+            }
         }
 
         private fun normalizeStyleName(value: String): String {
@@ -317,6 +325,16 @@ class ThemeConfig constructor(
                 ThemeOption.Style.XKCD -> normalized
                 else -> throw IllegalArgumentException(
                     "Illegal value: '$value', ${ThemeOption.STYLE}. Expected value: '${ThemeOption.Style.XKCD}'."
+                )
+            }
+        }
+
+        private fun normalizeFillName(value: String): String {
+            val normalized = value.lowercase()
+            return when (normalized) {
+                ThemeOption.Style.CROSS, ThemeOption.Style.SOLID -> normalized
+                else -> throw IllegalArgumentException(
+                    "Illegal value: '$value', ${ThemeOption.STYLE}. Expected '${ThemeOption.Style.CROSS}' or '${ThemeOption.Style.SOLID}'."
                 )
             }
         }

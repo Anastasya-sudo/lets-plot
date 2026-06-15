@@ -35,7 +35,7 @@ class SmoothGeom : GeomBase() {
 
         // Confidence interval
         val bands = helper.createBands(dataPoints, GeomUtil.TO_LOCATION_X_YMAX, GeomUtil.TO_LOCATION_X_YMIN)
-        root.appendNodes(bands)
+        bands.forEach { root.add(it) }
 
         // Regression line
         val regressionLines = helper.createLines(dataPoints, GeomUtil.TO_LOCATION_X_Y)

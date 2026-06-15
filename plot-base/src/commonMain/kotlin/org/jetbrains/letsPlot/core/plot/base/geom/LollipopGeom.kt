@@ -157,7 +157,8 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
         fun createCandy(helper: GeomHelper, style: GeomStyle): SvgGElement {
             val location = helper.toClient(head, point)!!
             val shape = point.shape()!!
-            if (style == GeomStyle.Xkcd && shape is NamedShape && shape.isCircleCandyShape()) {
+            // TODO: direct style-type check breaks GeomStyle abstraction; remove once PointShape goes polyline.
+            if (style is GeomStyle.Xkcd && shape is NamedShape && shape.isCircleCandyShape()) {
                 return createCircleCandy(shape, location, style)
             }
             return wrap(PointShapeSvg.create(shape, location, point, fatten))
@@ -201,6 +202,7 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
             return DoubleVector(x, y)
         }
 
+        // TODO: no scribble fill yet - should come through PointShape, not be duplicated here.
         private fun createCircleCandy(shape: NamedShape, center: DoubleVector, style: GeomStyle): SvgGElement {
             val radius = shape.size(point, fatten) / 2.0
             if (!radius.isFinite() || radius <= 0.0) {
@@ -209,7 +211,7 @@ class LollipopGeom : GeomBase(), WithWidth, WithHeight {
 
             val path = LinePath(
                 SvgPathDataBuilder().apply {
-                    lineString(style.circle(center, radius))
+                    lineString(style.resampleCircle(center, radius))
                     closePath()
                 }
             )

@@ -15,19 +15,24 @@ import kotlin.math.sin
 interface GeomStyle {
     fun resamplePath(points: List<DoubleVector>): List<DoubleVector>
 
-    fun rectangle(rect: DoubleRectangle): List<DoubleVector> =
+    fun resampleRectangle(rect: DoubleRectangle): List<DoubleVector> =
         resamplePath(rectanglePoints(rect))
 
-    fun circle(center: DoubleVector, radius: Double): List<DoubleVector> =
+    fun resampleCircle(center: DoubleVector, radius: Double): List<DoubleVector> =
         resamplePath(approximateCircle(center, radius))
+
+    fun fillScribble(boundary: List<DoubleVector>): List<List<DoubleVector>> = emptyList()
 
     object Regular : GeomStyle {
         override fun resamplePath(points: List<DoubleVector>): List<DoubleVector> = points
     }
 
-    object Xkcd : GeomStyle {
+    class Xkcd(private val fillPattern: FillPattern = FillPattern.CrossHatch) : GeomStyle {
         override fun resamplePath(points: List<DoubleVector>): List<DoubleVector> =
             XkcdPathEffect.toHandDrawn(points)
+
+        override fun fillScribble(boundary: List<DoubleVector>): List<List<DoubleVector>> =
+            fillPattern.generate(boundary).map { resamplePath(it) }
     }
 }
 

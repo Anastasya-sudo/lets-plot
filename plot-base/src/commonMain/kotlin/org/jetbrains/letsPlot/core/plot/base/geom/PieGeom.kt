@@ -9,15 +9,14 @@ import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.intern.math.toRadians
 import org.jetbrains.letsPlot.commons.interval.DoubleSpan
 import org.jetbrains.letsPlot.commons.values.Color
-import org.jetbrains.letsPlot.commons.values.Colors
 import org.jetbrains.letsPlot.core.plot.base.*
 import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
-import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil
 import org.jetbrains.letsPlot.core.plot.base.geom.annotation.PieAnnotation
 import org.jetbrains.letsPlot.core.plot.base.geom.util.approximateArc
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomHelper
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil
 import org.jetbrains.letsPlot.core.plot.base.geom.util.HintColorUtil
+import org.jetbrains.letsPlot.core.plot.base.geom.util.LinesHelper
 import org.jetbrains.letsPlot.core.plot.base.render.LegendKeyElementFactory
 import org.jetbrains.letsPlot.core.plot.base.render.SvgRoot
 import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
@@ -26,6 +25,7 @@ import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.core.plot.base.tooltip.GeomTargetCollector
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgCircleElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgGElement
+import org.jetbrains.letsPlot.datamodel.svg.dom.SvgNode
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathDataBuilder
 import kotlin.math.PI
 import kotlin.math.abs
@@ -62,6 +62,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
         ctx: GeomContext
     ) {
         val geomHelper = GeomHelper(pos, coord, ctx)
+        val linesHelper = LinesHelper(pos, coord, ctx)
         GeomUtil.withDefined(aesthetics.dataPoints(), Aes.X, Aes.Y, Aes.SLICE)
             .groupBy { p -> DoubleVector(p.x()!!, p.y()!!) }
             .forEach { (point, dataPoints) ->
@@ -70,7 +71,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
                 val toLocation = { p: DataPointAesthetics -> geomHelper.toClient(point, p) }
                 val pieSectors = computeSectors(dataPoints, toLocation, sizeUnitRatio)
 
-                root.appendNodes(pieSectors.map { buildSvgSector(it, ctx.style) })
+                pieSectors.forEach { root.add(buildSvgSector(it, linesHelper, ctx.style)) }
                 root.appendNodes(pieSectors.map { buildSvgArcs(it, ctx.style) })
                 if (spacerWidth > 0) {
                     root.appendNodes(
@@ -84,7 +85,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
             }
     }
 
-    private fun buildSvgSector(sector: Sector, style: GeomStyle): LinePath {
+    private fun buildSvgSector(sector: Sector, linesHelper: LinesHelper, style: GeomStyle): SvgNode {
         val outerArc = approximateArc(
             startPoint = sector.outerArcStart,
             endPoint = sector.outerArcEnd,
@@ -101,16 +102,14 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
         )
         val sectorPath = style.resamplePath(buildSectorPath(sector, outerArc, innerArc))
 
-        return LinePath(
+        val path = LinePath(
             SvgPathDataBuilder().apply {
                 lineString(sectorPath)
                 closePath()
             }
-        ).apply {
-            val fill = sector.p.fill()!!
-            val fillAlpha = AestheticsUtil.alpha(fill, sector.p)
-            fill().set(Colors.withOpacity(fill, fillAlpha))
-        }
+        )
+        // The sector outline (arc) is drawn separately by buildSvgArcs, so fill without an outline here.
+        return linesHelper.decorateFilled(path, sectorPath, sector.p, style, outlined = false)
     }
 
     private fun buildSvgArcs(sector: Sector, style: GeomStyle): LinePath {

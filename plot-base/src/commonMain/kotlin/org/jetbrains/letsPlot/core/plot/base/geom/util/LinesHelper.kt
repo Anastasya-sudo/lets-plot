@@ -18,6 +18,7 @@ import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
 import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil.createPathDataFromRectangle
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil.createPaths
+import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgNode
 
@@ -123,8 +124,7 @@ open class LinesHelper(
                 .let(::insertPathSeparators)
                 .let { LinePath.polygon(it, style = ctx.style) }
 
-            decorate(element, polygon.aes, filled = true)
-            element.rootGroup
+            decorateFilled(element, polygon.coordinates.first(), polygon.aes, ctx.style)
         }
 
         return svg.zip(clientPolygonData)
@@ -217,7 +217,7 @@ open class LinesHelper(
         toLocationUpper: (DataPointAesthetics) -> DoubleVector?,
         toLocationLower: (DataPointAesthetics) -> DoubleVector?,
         simplifyBorders: Boolean = false
-    ): List<LinePath> {
+    ): List<SvgNode> {
         return renderBands(dataPoints, toLocationUpper, toLocationLower, simplifyBorders, closePath = false)
     }
 
@@ -227,7 +227,7 @@ open class LinesHelper(
         toLocationLower: (DataPointAesthetics) -> DoubleVector?,
         simplifyBorders: Boolean,
         closePath: Boolean
-    ): List<LinePath> {
+    ): List<SvgNode> {
         val domainUpperPathData = createPaths(dataPoints, toLocationUpper, sorted = true, closePath, nullsCounter = counter)
         val domainLowerPathData = createPaths(dataPoints, toLocationLower, sorted = true, closePath, nullsCounter = counter)
 
@@ -256,8 +256,7 @@ open class LinesHelper(
                     },
                     style = ctx.style
                 )
-                decorateFillingPart(path, pathData.aes)
-                path
+                decorateFilled(path, points, pathData.aes, ctx.style, outlined = false)
             } else {
                 null
             }
@@ -311,6 +310,42 @@ open class LinesHelper(
 
         val lineType = p.lineType()
         path.lineType().set(lineType)
+    }
+
+    /**
+     * Fills the shape and returns the node to put into the SVG tree.
+     *
+     * No scribble (regular case): [path] is filled with a solid color, as before.
+     * Scribble (xkcd): the inside is drawn as separate strokes, returned in a group together with the
+     * border (unless [outlined] is false).
+     *
+     * Set [outlined] to false for shapes that draw their border separately (e.g. bands): the solid case
+     * then fills without stroking the outline, and the scribble case returns the strokes alone.
+     */
+    fun decorateFilled(
+        path: LinePath,
+        boundary: List<DoubleVector>,
+        p: DataPointAesthetics,
+        style: GeomStyle,
+        outlined: Boolean = true,
+        strokeScaler: (DataPointAesthetics) -> Double = AesScaling::strokeWidth
+    ): SvgNode {
+        val scribble = style.fillScribble(boundary)
+        if (scribble.isEmpty()) {
+            if (outlined) decorate(path, p, filled = true, strokeScaler) else decorateFillingPart(path, p)
+            return path.rootGroup
+        }
+
+        val border = if (outlined) {
+            decorate(path, p, filled = false, strokeScaler)
+            path.rootGroup
+        } else {
+            null
+        }
+
+        val fill = p.fill()!!
+        val fillColor = withOpacity(fill, AestheticsUtil.alpha(fill, p))
+        return scribbleGroup(border, scribble, fillColor)
     }
 
     private fun decorateFillingPart(path: LinePath, p: DataPointAesthetics) {
