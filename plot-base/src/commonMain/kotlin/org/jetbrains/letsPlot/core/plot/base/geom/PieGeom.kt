@@ -27,6 +27,7 @@ import org.jetbrains.letsPlot.datamodel.svg.dom.SvgCircleElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgGElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgNode
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathDataBuilder
+import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathElement
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -102,14 +103,14 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
         )
         val sectorPath = style.path(buildSectorPath(sector, outerArc, innerArc))
 
-        val path = LinePath(
+        val svgPath = SvgPathElement(
             SvgPathDataBuilder().apply {
                 lineString(sectorPath)
                 closePath()
-            }
+            }.build()
         )
         // The sector outline (arc) is drawn separately by buildSvgArcs, so fill without an outline here.
-        return linesHelper.decorateFilled(path, sectorPath, sector.p, style, outlined = false)
+        return linesHelper.decorateFilled(svgPath, sectorPath, sector.p, outlined = false)
     }
 
     private fun buildSvgArcs(sector: Sector, style: GeomStyle): LinePath {

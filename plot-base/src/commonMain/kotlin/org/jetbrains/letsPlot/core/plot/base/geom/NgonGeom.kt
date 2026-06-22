@@ -71,8 +71,8 @@ class NgonGeom : GeomBase() {
 
             val polygonPoints = polygon(clientCenter, radius, sideCount)
 
-            val path = LinePath.polygon(polygonPoints, style = ctx.style)
-            val node = linesHelper.decorateFilled(path, polygonPoints, p, ctx.style) {
+            val svgPath = LinePath.buildPathElement(polygonPoints, isPolygon = true, ctx.style)
+            val node = linesHelper.decorateFilled(svgPath, polygonPoints, p) {
                 AesScaling.strokeWidth(it, DataPointAesthetics::stroke)
             }
 

@@ -43,7 +43,7 @@ class RectanglesHelper(
                 val svgPoly = SvgPathElement()
                 svgPoly.d().set(SvgPathDataBuilder().lineString(polyRect).build())
 
-                handler(p, decorateFilled(svgPoly, polyRect, p, ctx.style), polyRect)
+                handler(p, decorateFilled(svgPoly, polyRect, p), polyRect)
             }
         }
     }
@@ -56,7 +56,7 @@ class RectanglesHelper(
                 val svgPath = SvgPathElement().apply {
                     d().set(SvgPathDataBuilder().lineString(rectPoints).build())
                 }
-                val node = decorateFilled(svgPath, rectPoints, p, ctx.style)
+                val node = decorateFilled(svgPath, rectPoints, p)
                 handler(p, node, clientRect)
             }
         }
@@ -73,7 +73,7 @@ class RectanglesHelper(
             val svgPath = SvgPathElement().apply {
                 d().set(SvgPathDataBuilder().lineString(rectPoints).build())
             }
-            result.add(decorateFilled(svgPath, rectPoints, p, ctx.style))
+            result.add(decorateFilled(svgPath, rectPoints, p))
         }
 
         return result

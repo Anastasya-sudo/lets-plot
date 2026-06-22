@@ -380,6 +380,45 @@ open class GeomHelper(
         }
     }
 
+    /**
+     * Fills [shape] and returns the node to put into the SVG tree.
+     * The style (from the context) decides how to fill: a solid color or its own geometry.
+     *
+     * Set [outlined] to false for shapes that draw their border separately (e.g. bands): the solid
+     * case then fills without stroking the outline, and no border is added to the style's fill.
+     */
+    fun decorateFilled(
+        shape: SvgPathElement,
+        boundary: List<DoubleVector>,
+        p: DataPointAesthetics,
+        outlined: Boolean = true,
+        strokeScaler: (DataPointAesthetics) -> Double = AesScaling::strokeWidth
+    ): SvgNode {
+        return ctx.style.fill(
+            boundary,
+            fillColor = {
+                val fill = p.fill()!!
+                Colors.withOpacity(fill, AestheticsUtil.alpha(fill, p))
+            },
+            solid = {
+                if (outlined) {
+                    decorate(shape, p, strokeScaler = strokeScaler)
+                } else {
+                    AestheticsUtil.updateFill(shape, p)
+                }
+                shape
+            },
+            outline = {
+                if (outlined) {
+                    decorate(shape, p, strokeScaler = strokeScaler, filled = false)
+                    shape
+                } else {
+                    null
+                }
+            }
+        )
+    }
+
     companion object {
         fun decorate(
             shape: SvgShape,
@@ -397,33 +436,6 @@ open class GeomHelper(
             val strokeWidth = strokeScaler(p)
             shape.strokeWidth().set(strokeWidth)
             StrokeDashArraySupport.apply(shape, strokeWidth, p.lineType())
-        }
-
-        /**
-         * The SvgPathElement counterpart of LinesHelper.decorateFilled.
-         * Fills [shape] via [GeomStyle.fill]; the style decides how (solid color or its own geometry).
-         */
-        fun decorateFilled(
-            shape: SvgPathElement,
-            boundary: List<DoubleVector>,
-            p: DataPointAesthetics,
-            style: GeomStyle
-        ): SvgNode {
-            return style.fill(
-                boundary,
-                fillColor = {
-                    val fill = p.fill()!!
-                    Colors.withOpacity(fill, AestheticsUtil.alpha(fill, p))
-                },
-                solid = {
-                    decorate(shape, p)
-                    shape
-                },
-                outline = {
-                    decorate(shape, p, filled = false)
-                    shape
-                }
-            )
         }
 
         internal fun decorateSlimShape(

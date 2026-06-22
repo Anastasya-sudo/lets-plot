@@ -18,7 +18,6 @@ import org.jetbrains.letsPlot.core.plot.base.aes.AesScaling
 import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil.createPathDataFromRectangle
 import org.jetbrains.letsPlot.core.plot.base.geom.util.GeomUtil.createPaths
-import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
 import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgNode
 
@@ -119,12 +118,12 @@ open class LinesHelper(
         }
 
         val svg = clientPolygonData.map { polygon ->
-            val element = polygon.coordinates
+            val svgPath = polygon.coordinates
                 .map { douglasPeucker(it, DOUGLAS_PEUCKER_PIXEL_THRESHOLD) }
                 .let(::insertPathSeparators)
-                .let { LinePath.polygon(it, style = ctx.style) }
+                .let { LinePath.buildPathElement(it, isPolygon = true, ctx.style) }
 
-            decorateFilled(element, polygon.coordinates.first(), polygon.aes, ctx.style)
+            decorateFilled(svgPath, polygon.coordinates.first(), polygon.aes)
         }
 
         return svg.zip(clientPolygonData)
@@ -249,14 +248,15 @@ open class LinesHelper(
             val points = pathData.coordinates
 
             if (points.isNotEmpty()) {
-                val path = LinePath.polygon(
+                val svgPath = LinePath.buildPathElement(
                     when {
                         simplifyBorders -> douglasPeucker(points, DOUGLAS_PEUCKER_PIXEL_THRESHOLD)
                         else -> points
                     },
-                    style = ctx.style
+                    isPolygon = true,
+                    ctx.style
                 )
-                decorateFilled(path, points, pathData.aes, ctx.style, outlined = false)
+                decorateFilled(svgPath, points, pathData.aes, outlined = false)
             } else {
                 null
             }
@@ -310,42 +310,6 @@ open class LinesHelper(
 
         val lineType = p.lineType()
         path.lineType().set(lineType)
-    }
-
-    /**
-     * Fills [path] via [GeomStyle.fill] and returns the node to put into the SVG tree.
-     * The style decides how to fill (solid color or its own geometry).
-     *
-     * Set [outlined] to false for shapes that draw their border separately (e.g. bands): the solid
-     * case then fills without stroking the outline, and no border is added to the style's fill.
-     */
-    fun decorateFilled(
-        path: LinePath,
-        boundary: List<DoubleVector>,
-        p: DataPointAesthetics,
-        style: GeomStyle,
-        outlined: Boolean = true,
-        strokeScaler: (DataPointAesthetics) -> Double = AesScaling::strokeWidth
-    ): SvgNode {
-        return style.fill(
-            boundary,
-            fillColor = {
-                val fill = p.fill()!!
-                withOpacity(fill, AestheticsUtil.alpha(fill, p))
-            },
-            solid = {
-                if (outlined) decorate(path, p, filled = true, strokeScaler) else decorateFillingPart(path, p)
-                path.rootGroup
-            },
-            outline = {
-                if (outlined) {
-                    decorate(path, p, filled = false, strokeScaler)
-                    path.rootGroup
-                } else {
-                    null
-                }
-            }
-        )
     }
 
     private fun decorateFillingPart(path: LinePath, p: DataPointAesthetics) {
