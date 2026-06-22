@@ -24,7 +24,6 @@ import org.jetbrains.letsPlot.core.plot.base.geom.DimensionUnit.*
 import org.jetbrains.letsPlot.core.plot.base.geom.util.ArrowSpec.Companion.toArrowAes
 import org.jetbrains.letsPlot.core.plot.base.geom.util.ArrowSpec.Type.CLOSED
 import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
-import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
 import org.jetbrains.letsPlot.core.plot.base.render.svg.StrokeDashArraySupport
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.datamodel.svg.dom.*
@@ -382,8 +381,6 @@ open class GeomHelper(
     }
 
     companion object {
-        const val SCRIBBLE_STROKE_WIDTH = 1.0
-
         fun decorate(
             shape: SvgShape,
             p: DataPointAesthetics,
@@ -403,11 +400,8 @@ open class GeomHelper(
         }
 
         /**
-         * The SvgShape counterpart of LinesHelper.decorateFilled.
-         *
-         * No scribble (regular case): [shape] is filled with a solid color, as before.
-         * Scribble (xkcd): [shape] keeps its border but no solid fill; border and the scribble
-         * strokes are returned together in a group.
+         * The SvgPathElement counterpart of LinesHelper.decorateFilled.
+         * Fills [shape] via [GeomStyle.fill]; the style decides how (solid color or its own geometry).
          */
         fun decorateFilled(
             shape: SvgPathElement,
@@ -415,37 +409,21 @@ open class GeomHelper(
             p: DataPointAesthetics,
             style: GeomStyle
         ): SvgNode {
-            val scribble = style.fillScribble(boundary)
-            if (scribble.isEmpty()) {
-                decorate(shape, p)
-                return shape
-            }
-
-            decorate(shape, p, filled = false)
-
-            val fill = p.fill()!!
-            val fillColor = Colors.withOpacity(fill, AestheticsUtil.alpha(fill, p))
-            return scribbleGroup(shape, scribble, fillColor)
-        }
-
-        /**
-         * Wraps the optional [border] node and the [scribble] strokes (each styled with [fillColor]
-         * and [SCRIBBLE_STROKE_WIDTH]) into a single group. Shared by both decorateFilled variants.
-         */
-        internal fun scribbleGroup(
-            border: SvgNode?,
-            scribble: List<List<DoubleVector>>,
-            fillColor: Color
-        ): SvgGElement {
-            val group = SvgGElement()
-            border?.let { group.children().add(it) }
-            for (stroke in scribble) {
-                val strokePath = LinePath.line(stroke)
-                strokePath.color().set(fillColor)
-                strokePath.width().set(SCRIBBLE_STROKE_WIDTH)
-                group.children().add(strokePath.rootGroup)
-            }
-            return group
+            return style.fill(
+                boundary,
+                fillColor = {
+                    val fill = p.fill()!!
+                    Colors.withOpacity(fill, AestheticsUtil.alpha(fill, p))
+                },
+                solid = {
+                    decorate(shape, p)
+                    shape
+                },
+                outline = {
+                    decorate(shape, p, filled = false)
+                    shape
+                }
+            )
         }
 
         internal fun decorateSlimShape(

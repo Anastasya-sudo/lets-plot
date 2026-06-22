@@ -313,14 +313,11 @@ open class LinesHelper(
     }
 
     /**
-     * Fills the shape and returns the node to put into the SVG tree.
+     * Fills [path] via [GeomStyle.fill] and returns the node to put into the SVG tree.
+     * The style decides how to fill (solid color or its own geometry).
      *
-     * No scribble (regular case): [path] is filled with a solid color, as before.
-     * Scribble (xkcd): the inside is drawn as separate strokes, returned in a group together with the
-     * border (unless [outlined] is false).
-     *
-     * Set [outlined] to false for shapes that draw their border separately (e.g. bands): the solid case
-     * then fills without stroking the outline, and the scribble case returns the strokes alone.
+     * Set [outlined] to false for shapes that draw their border separately (e.g. bands): the solid
+     * case then fills without stroking the outline, and no border is added to the style's fill.
      */
     fun decorateFilled(
         path: LinePath,
@@ -330,22 +327,25 @@ open class LinesHelper(
         outlined: Boolean = true,
         strokeScaler: (DataPointAesthetics) -> Double = AesScaling::strokeWidth
     ): SvgNode {
-        val scribble = style.fillScribble(boundary)
-        if (scribble.isEmpty()) {
-            if (outlined) decorate(path, p, filled = true, strokeScaler) else decorateFillingPart(path, p)
-            return path.rootGroup
-        }
-
-        val border = if (outlined) {
-            decorate(path, p, filled = false, strokeScaler)
-            path.rootGroup
-        } else {
-            null
-        }
-
-        val fill = p.fill()!!
-        val fillColor = withOpacity(fill, AestheticsUtil.alpha(fill, p))
-        return scribbleGroup(border, scribble, fillColor)
+        return style.fill(
+            boundary,
+            fillColor = {
+                val fill = p.fill()!!
+                withOpacity(fill, AestheticsUtil.alpha(fill, p))
+            },
+            solid = {
+                if (outlined) decorate(path, p, filled = true, strokeScaler) else decorateFillingPart(path, p)
+                path.rootGroup
+            },
+            outline = {
+                if (outlined) {
+                    decorate(path, p, filled = false, strokeScaler)
+                    path.rootGroup
+                } else {
+                    null
+                }
+            }
+        )
     }
 
     private fun decorateFillingPart(path: LinePath, p: DataPointAesthetics) {
