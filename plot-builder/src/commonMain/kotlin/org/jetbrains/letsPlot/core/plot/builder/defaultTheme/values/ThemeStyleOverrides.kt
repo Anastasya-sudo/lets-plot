@@ -7,6 +7,9 @@ package org.jetbrains.letsPlot.core.plot.builder.defaultTheme.values
 
 internal object ThemeStyleOverrides {
     val XKCD: Map<String, Any> = mapOf(
+        ThemeOption.STYLE to mapOf(
+            ThemeOption.Style.FILL to ThemeOption.Style.CROSS
+        ),
         ThemeOption.TEXT to mapOf(
             ThemeOption.Elem.FONT_FAMILY to "Humor Sans"
         ),

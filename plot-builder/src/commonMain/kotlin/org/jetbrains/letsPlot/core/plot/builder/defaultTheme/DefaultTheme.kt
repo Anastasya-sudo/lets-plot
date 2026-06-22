@@ -54,7 +54,14 @@ class DefaultTheme internal constructor(
             }
 
             val fillName = (styleOption as? Map<*, *>)?.get(ThemeOption.Style.FILL)
-            val fillPattern = if (fillName == ThemeOption.Style.SOLID) FillPattern.None else FillPattern.CrossHatch
+            val fillPattern = when (fillName) {
+                ThemeOption.Style.SOLID -> FillPattern.None
+                ThemeOption.Style.CROSS -> FillPattern.CrossHatch
+                else -> throw IllegalArgumentException(
+                    "Illegal value: '$fillName', ${ThemeOption.STYLE}. " +
+                            "Expected '${ThemeOption.Style.CROSS}' or '${ThemeOption.Style.SOLID}'."
+                )
+            }
             return GeomStyle.Xkcd(fillPattern)
         }
 
