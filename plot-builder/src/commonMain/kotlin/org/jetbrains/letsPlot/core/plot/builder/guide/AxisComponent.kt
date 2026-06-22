@@ -113,7 +113,7 @@ class AxisComponent(
             val y2: Double = if (!orientation.isHorizontal) end else 0.0
 
             val axisLine = SvgPathElement(
-                SvgPathDataBuilder().lineString(style.resamplePath(listOf(DoubleVector(x1, y1), DoubleVector(x2, y2)))).build()
+                SvgPathDataBuilder().lineString(style.path(listOf(DoubleVector(x1, y1), DoubleVector(x2, y2)))).build()
             ).apply {
                 strokeWidth().set(axisTheme.lineWidth())
                 strokeColor().set(axisTheme.lineColor())
@@ -164,7 +164,7 @@ class AxisComponent(
             Orientation.BOTTOM -> DoubleVector(0.0, tickStyle.length)
         }
         return SvgPathElement(
-            SvgPathDataBuilder().lineString(style.resamplePath(listOf(DoubleVector(0.0, 0.0), end))).build()
+            SvgPathDataBuilder().lineString(style.path(listOf(DoubleVector(0.0, 0.0), end))).build()
         ).apply {
             strokeWidth().set(tickStyle.width)
             strokeColor().set(tickStyle.color)

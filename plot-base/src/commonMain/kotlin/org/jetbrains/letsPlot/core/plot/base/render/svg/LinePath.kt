@@ -164,7 +164,7 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
             if (curSegment.isEmpty()) {
                 return
             }
-            val points = style.resamplePath(curSegment)
+            val points = style.path(curSegment)
             builder.moveTo(points[0])
             builder.interpolatePoints(
                 points,

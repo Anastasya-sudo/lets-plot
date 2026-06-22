@@ -101,7 +101,7 @@ class GridComponent constructor(
         color: Color,
         lineType: LineType
     ): SvgNode {
-        val points = style.resamplePath(lineString)
+        val points = style.path(lineString)
         val shapeElem: SvgShape = when {
             points.size == 2 -> SvgLineElement(points[0].x, points[0].y, points[1].x, points[1].y)
             points.size > 2 -> SvgPathElement(SvgPathDataBuilder().lineString(points).build())

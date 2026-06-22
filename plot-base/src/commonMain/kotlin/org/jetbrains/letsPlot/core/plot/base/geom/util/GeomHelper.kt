@@ -239,7 +239,7 @@ open class GeomHelper(
 
             if (lineString.isEmpty() || lineString.size == 1) return null
 
-            val lineStringAfterPadding = style.resamplePath(padLineString(lineString, p, padArrow = true))
+            val lineStringAfterPadding = style.path(padLineString(lineString, p, padArrow = true))
 
             val lineElement = if (lineStringAfterPadding.size == 2) {
                 // Simple SvgLineElement is enough for a straight line without arrow

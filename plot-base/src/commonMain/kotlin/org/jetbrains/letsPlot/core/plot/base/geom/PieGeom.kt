@@ -100,7 +100,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
             endAngle = sector.startAngle,
             arcPoint = sector::innerArcPoint
         )
-        val sectorPath = style.resamplePath(buildSectorPath(sector, outerArc, innerArc))
+        val sectorPath = style.path(buildSectorPath(sector, outerArc, innerArc))
 
         val path = LinePath(
             SvgPathDataBuilder().apply {
@@ -116,7 +116,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
         return LinePath(
             SvgPathDataBuilder().apply {
                 if (strokeSide.hasOuter) {
-                    lineString(style.resamplePath(approximateArc(
+                    lineString(style.path(approximateArc(
                         startPoint = sector.outerArcStart,
                         endPoint = sector.outerArcEnd,
                         startAngle = sector.startAngle,
@@ -125,7 +125,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
                     )))
                 }
                 if (strokeSide.hasInner) {
-                    lineString(style.resamplePath(approximateArc(
+                    lineString(style.path(approximateArc(
                         startPoint = sector.innerArcEnd,
                         endPoint = sector.innerArcStart,
                         startAngle = sector.endAngleForDrawing(),
@@ -150,10 +150,10 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
             return LinePath(
                 SvgPathDataBuilder().apply {
                     if (atStart) {
-                        lineString(style.resamplePath(listOf(sector.innerStrokeStartPoint, sector.outerStrokeStartPoint)))
+                        lineString(style.path(listOf(sector.innerStrokeStartPoint, sector.outerStrokeStartPoint)))
                     }
                     if (atEnd) {
-                        lineString(style.resamplePath(listOf(sector.innerStrokeEndPoint, sector.outerStrokeEndPoint)))
+                        lineString(style.path(listOf(sector.innerStrokeEndPoint, sector.outerStrokeEndPoint)))
                     }
                 }
             ).apply {

@@ -38,7 +38,7 @@ class RectanglesHelper(
                         DoubleVector(rect.left, rect.bottom),
                         DoubleVector(rect.left, rect.top)
                     )
-                ) { toClient(it, p) }.let { ctx.style.resamplePath(it) }
+                ) { toClient(it, p) }.let { ctx.style.path(it) }
 
                 val svgPoly = SvgPathElement()
                 svgPoly.d().set(SvgPathDataBuilder().lineString(polyRect).build())
@@ -52,7 +52,7 @@ class RectanglesHelper(
         myAesthetics.dataPoints().forEach { p ->
             geometryFactory(p)?.let { rect ->
                 val clientRect = toClient(rect, p) ?: return@let
-                val rectPoints = ctx.style.resampleRectangle(clientRect)
+                val rectPoints = ctx.style.rectangle(clientRect)
                 val svgPath = SvgPathElement().apply {
                     d().set(SvgPathDataBuilder().lineString(rectPoints).build())
                 }
@@ -69,7 +69,7 @@ class RectanglesHelper(
             val p = myAesthetics.dataPointAt(index)
             val clientRect = geometryFactory(p) ?: continue
 
-            val rectPoints = ctx.style.resampleRectangle(clientRect)
+            val rectPoints = ctx.style.rectangle(clientRect)
             val svgPath = SvgPathElement().apply {
                 d().set(SvgPathDataBuilder().lineString(rectPoints).build())
             }
@@ -127,7 +127,7 @@ class RectanglesHelper(
                         }
 
                         it.firstOrNull() ?: emptyList()
-                    }.let { ctx.style.resamplePath(it) }
+                    }.let { ctx.style.path(it) }
 
                     onGeometry(p, null, simplified)
 
@@ -139,7 +139,7 @@ class RectanglesHelper(
 
                     onGeometry(p, clientRect, null)
 
-                    val polyRect = ctx.style.resampleRectangle(clientRect)
+                    val polyRect = ctx.style.rectangle(clientRect)
                     val slimShape = SvgSlimElements.path(SvgPathDataBuilder().lineString(polyRect).build())
                     decorateSlimShape(slimShape, p)
                     slimShape.appendTo(group)

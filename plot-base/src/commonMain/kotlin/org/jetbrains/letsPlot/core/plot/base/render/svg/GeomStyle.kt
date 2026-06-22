@@ -13,26 +13,26 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 interface GeomStyle {
-    fun resamplePath(points: List<DoubleVector>): List<DoubleVector>
+    fun path(points: List<DoubleVector>): List<DoubleVector>
 
-    fun resampleRectangle(rect: DoubleRectangle): List<DoubleVector> =
-        resamplePath(rectanglePoints(rect))
+    fun rectangle(rect: DoubleRectangle): List<DoubleVector> =
+        path(rectanglePoints(rect))
 
-    fun resampleCircle(center: DoubleVector, radius: Double): List<DoubleVector> =
-        resamplePath(approximateCircle(center, radius))
+    fun circle(center: DoubleVector, radius: Double): List<DoubleVector> =
+        path(approximateCircle(center, radius))
 
     fun fillScribble(boundary: List<DoubleVector>): List<List<DoubleVector>> = emptyList()
 
     object Regular : GeomStyle {
-        override fun resamplePath(points: List<DoubleVector>): List<DoubleVector> = points
+        override fun path(points: List<DoubleVector>): List<DoubleVector> = points
     }
 
     class Xkcd(private val fillPattern: FillPattern = FillPattern.CrossHatch) : GeomStyle {
-        override fun resamplePath(points: List<DoubleVector>): List<DoubleVector> =
+        override fun path(points: List<DoubleVector>): List<DoubleVector> =
             XkcdPathEffect.toHandDrawn(points)
 
         override fun fillScribble(boundary: List<DoubleVector>): List<List<DoubleVector>> =
-            fillPattern.generate(boundary).map { resamplePath(it) }
+            fillPattern.generate(boundary).map { path(it) }
     }
 }
 
