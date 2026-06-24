@@ -64,7 +64,7 @@ class PolarAxisComponent(
                 val axisLine = SvgPathElement().apply {
                     d().set(
                         SvgPathDataBuilder()
-                            .lineString(style.resamplePath(breaksData.axisLine))
+                            .lineString(style.path(breaksData.axisLine))
                             .build()
                     )
                     strokeWidth().set(axisTheme.lineWidth())
@@ -80,7 +80,7 @@ class PolarAxisComponent(
                     d().set(
                         SvgPathDataBuilder()
                             .lineString(
-                                style.resamplePath(
+                                style.path(
                                     listOf(
                                         DoubleVector(0.0, breaksData.axisLine[0].y),
                                         DoubleVector(0.0, breaksData.axisLine[1].y)
@@ -121,7 +121,7 @@ class PolarAxisComponent(
                 Orientation.TOP -> error("Unsupported orientation $orientation")
             }
             SvgPathElement(
-                SvgPathDataBuilder().lineString(style.resamplePath(listOf(start, end))).build()
+                SvgPathDataBuilder().lineString(style.path(listOf(start, end))).build()
             ).apply {
                 strokeWidth().set(axisTheme.tickMarkWidth())
                 strokeColor().set(axisTheme.tickMarkColor())

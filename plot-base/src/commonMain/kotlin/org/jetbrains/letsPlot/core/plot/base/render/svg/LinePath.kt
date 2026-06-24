@@ -121,6 +121,15 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
             )
         }
 
+        // Builds the bare <path> (the 'd') without wrapping it in a LinePath/<g>.
+        fun buildPathElement(
+            points: Iterable<DoubleVector?>,
+            isPolygon: Boolean,
+            style: GeomStyle = GeomStyle.Regular
+        ): SvgPathElement {
+            return SvgPathElement(pathBuilder(points, isPolygon, style).build())
+        }
+
         private fun pathBuilder(points: Iterable<DoubleVector?>, isPolygon: Boolean, style: GeomStyle): SvgPathDataBuilder {
             val builder = SvgPathDataBuilder(true)
 
@@ -164,7 +173,7 @@ class LinePath(builder: SvgPathDataBuilder) : SvgComponent() {
             if (curSegment.isEmpty()) {
                 return
             }
-            val points = style.resamplePath(curSegment)
+            val points = style.path(curSegment)
             builder.moveTo(points[0])
             builder.interpolatePoints(
                 points,

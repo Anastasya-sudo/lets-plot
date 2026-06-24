@@ -27,6 +27,7 @@ import org.jetbrains.letsPlot.datamodel.svg.dom.SvgCircleElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgGElement
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgNode
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathDataBuilder
+import org.jetbrains.letsPlot.datamodel.svg.dom.SvgPathElement
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -100,23 +101,23 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
             endAngle = sector.startAngle,
             arcPoint = sector::innerArcPoint
         )
-        val sectorPath = style.resamplePath(buildSectorPath(sector, outerArc, innerArc))
+        val sectorPath = style.path(buildSectorPath(sector, outerArc, innerArc))
 
-        val path = LinePath(
+        val svgPath = SvgPathElement(
             SvgPathDataBuilder().apply {
                 lineString(sectorPath)
                 closePath()
-            }
+            }.build()
         )
         // The sector outline (arc) is drawn separately by buildSvgArcs, so fill without an outline here.
-        return linesHelper.decorateFilled(path, sectorPath, sector.p, style, outlined = false)
+        return linesHelper.decorateFilled(svgPath, sectorPath, sector.p, outlined = false)
     }
 
     private fun buildSvgArcs(sector: Sector, style: GeomStyle): LinePath {
         return LinePath(
             SvgPathDataBuilder().apply {
                 if (strokeSide.hasOuter) {
-                    lineString(style.resamplePath(approximateArc(
+                    lineString(style.path(approximateArc(
                         startPoint = sector.outerArcStart,
                         endPoint = sector.outerArcEnd,
                         startAngle = sector.startAngle,
@@ -125,7 +126,7 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
                     )))
                 }
                 if (strokeSide.hasInner) {
-                    lineString(style.resamplePath(approximateArc(
+                    lineString(style.path(approximateArc(
                         startPoint = sector.innerArcEnd,
                         endPoint = sector.innerArcStart,
                         startAngle = sector.endAngleForDrawing(),
@@ -150,10 +151,10 @@ class PieGeom : GeomBase(), WithWidth, WithHeight {
             return LinePath(
                 SvgPathDataBuilder().apply {
                     if (atStart) {
-                        lineString(style.resamplePath(listOf(sector.innerStrokeStartPoint, sector.outerStrokeStartPoint)))
+                        lineString(style.path(listOf(sector.innerStrokeStartPoint, sector.outerStrokeStartPoint)))
                     }
                     if (atEnd) {
-                        lineString(style.resamplePath(listOf(sector.innerStrokeEndPoint, sector.outerStrokeEndPoint)))
+                        lineString(style.path(listOf(sector.innerStrokeEndPoint, sector.outerStrokeEndPoint)))
                     }
                 }
             ).apply {

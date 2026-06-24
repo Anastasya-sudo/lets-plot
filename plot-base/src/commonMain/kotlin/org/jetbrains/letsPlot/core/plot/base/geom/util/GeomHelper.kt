@@ -24,7 +24,6 @@ import org.jetbrains.letsPlot.core.plot.base.geom.DimensionUnit.*
 import org.jetbrains.letsPlot.core.plot.base.geom.util.ArrowSpec.Companion.toArrowAes
 import org.jetbrains.letsPlot.core.plot.base.geom.util.ArrowSpec.Type.CLOSED
 import org.jetbrains.letsPlot.core.plot.base.render.svg.GeomStyle
-import org.jetbrains.letsPlot.core.plot.base.render.svg.LinePath
 import org.jetbrains.letsPlot.core.plot.base.render.svg.StrokeDashArraySupport
 import org.jetbrains.letsPlot.core.plot.base.render.svg.lineString
 import org.jetbrains.letsPlot.datamodel.svg.dom.*
@@ -239,7 +238,7 @@ open class GeomHelper(
 
             if (lineString.isEmpty() || lineString.size == 1) return null
 
-            val lineStringAfterPadding = style.resamplePath(padLineString(lineString, p, padArrow = true))
+            val lineStringAfterPadding = style.path(padLineString(lineString, p, padArrow = true))
 
             val lineElement = if (lineStringAfterPadding.size == 2) {
                 // Simple SvgLineElement is enough for a straight line without arrow
@@ -381,9 +380,46 @@ open class GeomHelper(
         }
     }
 
-    companion object {
-        const val SCRIBBLE_STROKE_WIDTH = 1.0
+    /**
+     * Fills [shape] and returns the node to put into the SVG tree.
+     * The style (from the context) decides how to fill: a solid color or its own geometry.
+     *
+     * Set [outlined] to false for shapes that draw their border separately (e.g. bands): the solid
+     * case then fills without stroking the outline, and no border is added to the style's fill.
+     */
+    fun decorateFilled(
+        shape: SvgPathElement,
+        boundary: List<DoubleVector>,
+        p: DataPointAesthetics,
+        outlined: Boolean = true,
+        strokeScaler: (DataPointAesthetics) -> Double = AesScaling::strokeWidth
+    ): SvgNode {
+        return ctx.style.fill(
+            boundary,
+            fillColor = {
+                val fill = p.fill()!!
+                Colors.withOpacity(fill, AestheticsUtil.alpha(fill, p))
+            },
+            solid = {
+                if (outlined) {
+                    decorate(shape, p, strokeScaler = strokeScaler)
+                } else {
+                    AestheticsUtil.updateFill(shape, p)
+                }
+                shape
+            },
+            outline = {
+                if (outlined) {
+                    decorate(shape, p, strokeScaler = strokeScaler, filled = false)
+                    shape
+                } else {
+                    null
+                }
+            }
+        )
+    }
 
+    companion object {
         fun decorate(
             shape: SvgShape,
             p: DataPointAesthetics,
@@ -400,52 +436,6 @@ open class GeomHelper(
             val strokeWidth = strokeScaler(p)
             shape.strokeWidth().set(strokeWidth)
             StrokeDashArraySupport.apply(shape, strokeWidth, p.lineType())
-        }
-
-        /**
-         * The SvgShape counterpart of LinesHelper.decorateFilled.
-         *
-         * No scribble (regular case): [shape] is filled with a solid color, as before.
-         * Scribble (xkcd): [shape] keeps its border but no solid fill; border and the scribble
-         * strokes are returned together in a group.
-         */
-        fun decorateFilled(
-            shape: SvgPathElement,
-            boundary: List<DoubleVector>,
-            p: DataPointAesthetics,
-            style: GeomStyle
-        ): SvgNode {
-            val scribble = style.fillScribble(boundary)
-            if (scribble.isEmpty()) {
-                decorate(shape, p)
-                return shape
-            }
-
-            decorate(shape, p, filled = false)
-
-            val fill = p.fill()!!
-            val fillColor = Colors.withOpacity(fill, AestheticsUtil.alpha(fill, p))
-            return scribbleGroup(shape, scribble, fillColor)
-        }
-
-        /**
-         * Wraps the optional [border] node and the [scribble] strokes (each styled with [fillColor]
-         * and [SCRIBBLE_STROKE_WIDTH]) into a single group. Shared by both decorateFilled variants.
-         */
-        internal fun scribbleGroup(
-            border: SvgNode?,
-            scribble: List<List<DoubleVector>>,
-            fillColor: Color
-        ): SvgGElement {
-            val group = SvgGElement()
-            border?.let { group.children().add(it) }
-            for (stroke in scribble) {
-                val strokePath = LinePath.line(stroke)
-                strokePath.color().set(fillColor)
-                strokePath.width().set(SCRIBBLE_STROKE_WIDTH)
-                group.children().add(strokePath.rootGroup)
-            }
-            return group
         }
 
         internal fun decorateSlimShape(

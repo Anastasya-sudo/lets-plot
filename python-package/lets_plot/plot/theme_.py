@@ -13,6 +13,7 @@ __all__ = [
     'element_markdown',
     'margin',
     'element_geom',
+    'element_style',
 ]
 
 
@@ -424,6 +425,7 @@ def theme(*,
         With the ``'xkcd'`` style, a ``'fill'`` key selects how filled shapes are drawn:
         ``'cross'`` for hand-drawn cross-hatching (default) or ``'solid'`` for a flat fill,
         for example: ``{'name': 'xkcd', 'fill': 'solid'}``.
+        Set ``element_style()`` to specify the style parameters.
 
     Returns
     -------
@@ -881,3 +883,43 @@ def element_geom(
 
     """
     return locals()
+
+
+def element_style(
+        name=None,
+        fill=None,
+) -> dict:
+    """
+    Theme element that specifies a built-in rendering style mode.
+
+    Parameters
+    ----------
+    name : {'none', 'xkcd'}
+        Built-in rendering style mode.
+        Set ``'xkcd'`` to enable hand-drawn style rendering, or ``'none'`` for standard rendering.
+    fill : {'cross', 'solid'}, default='cross'
+        How filled shapes are drawn with the ``'xkcd'`` style.
+        Set ``'cross'`` for hand-drawn cross-hatching or ``'solid'`` for a flat fill.
+
+    Returns
+    -------
+    ``dict``
+        Theme element specification.
+
+    Examples
+    --------
+    .. jupyter-execute::
+        :linenos:
+        :emphasize-lines: 8
+
+        import numpy as np
+        from lets_plot import *
+        LetsPlot.setup_html()
+        np.random.seed(42)
+        data = {'x': np.random.normal(size=1000)}
+        ggplot(data, aes(x='x')) + \\
+            geom_histogram(fill='red') + \\
+            theme(style=element_style(name='xkcd', fill='solid'))
+
+    """
+    return _filter_none(locals())
